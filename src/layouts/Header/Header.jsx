@@ -1,70 +1,124 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { FaSearch, FaMapMarkerAlt, FaPhoneAlt, FaHeart, FaShoppingCart, FaUser } from "react-icons/fa";
-import GamaLogo from "../../assets/GamaExpressLogo1.png"; // Adjust the import path as necessary
+import GamaLogo from "../../assets/GamaExpressLogo1.png";
 
 const Header = () => {
     return (
-        <header className="bg-white border-bottom py-3" style={{ minHeight: 80 }}>
-            <div className="container-fluid d-flex align-items-center justify-content-between">
-                {/* Logo */}
-                <div className="d-flex align-items-center" style={{ minWidth: 320 }}>
+        <header style={{
+            background: "#fff",
+            boxShadow: "0 2px 6px #0001",
+            padding: "0",
+            display: "flex",
+            justifyContent: "center"
+        }}>
+            <div style={{
+                width: "100%",
+                maxWidth: 1400,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                height: 90
+            }}>
+                {/* Hamburger + Logo */}
+                <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                    {/* Hamburger */}
+                    <button style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        marginRight: 12,
+                        cursor: "pointer",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        height: 40
+                    }}>
+                        <span style={{
+                            width: 32,
+                            height: 3,
+                            background: "#444",
+                            margin: "4px 0",
+                            borderRadius: 2,
+                            display: "block"
+                        }} />
+                        <span style={{
+                            width: 32,
+                            height: 3,
+                            background: "#444",
+                            margin: "4px 0",
+                            borderRadius: 2,
+                            display: "block"
+                        }} />
+                        <span style={{
+                            width: 32,
+                            height: 3,
+                            background: "#444",
+                            margin: "4px 0",
+                            borderRadius: 2,
+                            display: "block"
+                        }} />
+                    </button>
+                    {/* Logo */}
                     <img
                         src={GamaLogo}
-                        alt="Gama Express Auto Pjes"
-                        style={{ height: 60, marginRight: 24 , border: "none"}}
+                        alt="Logo"
+                        style={{ height: 48 }}
                     />
                 </div>
 
-                {/* Search Bar */}
-                <div className="flex-grow-1 mx-4" style={{ maxWidth: 700 }}>
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control rounded-start-pill"
-                            placeholder="Search for products, categories..."
-                            style={{ height: 48, fontSize: 16, borderRight: "none" }}
-                        />
-                        <span className="input-group-text bg-white border-start-0 rounded-end-pill" style={{ cursor: "pointer" }}>
-                            <FaSearch size={22} />
-                        </span>
-                    </div>
+                {/* Search */}
+                <div style={{
+                    flex: 1,
+                    margin: "0 32px",
+                    display: "flex",
+                    justifyContent: "center"
+                }}>
+                    <input
+                        type="text"
+                        placeholder="Search for products, categories..."
+                        style={{
+                            width: 420,
+                            padding: "10px 16px",
+                            border: "2px solid #e53935",
+                            borderRadius: 8,
+                            outline: "none",
+                            fontSize: 14,
+                            background: "#fafafa"
+                        }}
+                    />
                 </div>
 
-                {/* Store Info & Actions */}
-                <div className="d-flex align-items-center gap-4">
-                    {/* Location */}
-                    <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-circle border" style={{ minWidth: 90 }}>
-                        <FaMapMarkerAlt color="#e53935" size={22} />
-                        <div className="d-none d-lg-block">
-                            <div className="small text-muted">Our store</div>
-                            <div className="fw-bold" style={{ fontSize: 14 }}>Location</div>
+                {/* Store & Contact */}
+                <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+                    {/* Store Location */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{
+                            display: "inline-block",
+                            width: 20,
+                            height: 20,
+                            border: "2px solid #e53935",
+                            borderRadius: "50%",
+                            marginRight: 4
+                        }} />
+                        <div>
+                            <div style={{ fontSize: 13, color: "#444" }}>Our store</div>
+                            <div style={{ fontWeight: 600, fontSize: 13, color: "#222" }}>Location</div>
                         </div>
                     </div>
-                    {/* Phone */}
-                    <div className="d-flex align-items-center gap-2 px-3 py-2 rounded-circle border" style={{ minWidth: 120 }}>
-                        <FaPhoneAlt color="#e53935" size={20} />
-                        <div className="d-none d-lg-block">
-                            <div className="small text-muted">Talk to a Specialist</div>
-                            <div className="fw-bold" style={{ fontSize: 14 }}>+383 48 770 400</div>
+                    {/* Contact Sales */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <span style={{
+                            display: "inline-block",
+                            width: 20,
+                            height: 20,
+                            border: "2px solid #e53935",
+                            borderRadius: "50%",
+                            marginRight: 4
+                        }} />
+                        <div>
+                            <div style={{ fontSize: 13, color: "#444" }}>Contact Sales</div>
+                            <div style={{ fontWeight: 700, fontSize: 13, color: "#222" }}>+383 44 100 531</div>
                         </div>
                     </div>
-                    {/* Icons */}
-                    <Link to="/wishlist" className="mx-2 position-relative" title="Wishlist">
-                        <FaHeart size={24} />
-                    </Link>
-                    <Link to="/cart" className="mx-2 position-relative" title="Cart">
-                        <FaShoppingCart size={24} />
-                        <span
-                            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                            style={{ fontSize: 12 }}
-                        >
-                            0
-                        </span>
-                    </Link>
-                    <Link to="/account" className="mx-2" title="Account">
-                        <FaUser size={24} />
-                    </Link>
                 </div>
             </div>
         </header>
