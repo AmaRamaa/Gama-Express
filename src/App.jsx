@@ -6,6 +6,7 @@ import ProductDetails from './pages/ShopPage/ProductsDetails'
 import Home from './pages/HomePage/Home'
 import Header from './layouts/Header/Header'
 import Footer from './layouts/Footer/Footer'
+import Testing from './pages/TestingPage/Testing'
 function App() {
   return (
 <Router>
@@ -15,6 +16,7 @@ function App() {
         <Route path="/catalog" element={<ShopPage />} />
         <Route path="/catalog/:manufacturer" element={<Models />} />
         <Route path="/catalog/:category/:subcategory/:product" element={<ProductDetails />} />
+        <Route path="/testing" element={<Testing/>} /> 
         <Route path="/home" element={<Home />} />
       </Routes>
       <Footer />
