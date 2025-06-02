@@ -330,7 +330,7 @@ const Models = () => {
                                                     border: `1px solid ${headerRed}`,
                                                     borderRadius: '0 0 8px 8px',
                                                     zIndex: 30,
-                                                    width: '100%',
+                                                    width: '250px',
                                                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                                                 }}
                                             >
