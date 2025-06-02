@@ -82,11 +82,44 @@ const Models = () => {
             setLoading(true);
 
             // Simple search: filter by manufacturer and selectedModel (case-insensitive)
-            const { data, error } = await supabase
+            // Find the selected model object to get its start_year and end_year
+            const selectedModelObj = models.find(
+                m => m.model === selectedModel
+            );
+            let query = supabase
                 .from('Parts')
                 .select('*')
                 .ilike('Car', `%${manufacturer}%`)
-                .ilike('Model', `%${selectedModel}%`)
+                .ilike('Car', `%${selectedModel}%`);
+            // if (selectedModelObj && selectedModelObj.start_year) {
+            //     // If end_year exists, filter for the range, else just start_year
+            //     // Try both "2016-2020" and "16-20" and "2016" and "16" and "2020" and "20" in the Car field for flexibility
+            //     const sy = selectedModelObj.start_year.toString();
+            //     const ey = selectedModelObj.end_year ? selectedModelObj.end_year.toString() : null;
+            //     const sy2 = sy.slice(-2);
+            //     const ey2 = ey ? ey.slice(-2) : null;
+
+            //     if (ey) {
+            //         // Only include ey and ey2 if they are not null
+            //         const orConditions = [
+            //             `Car.ilike.%${sy}-${ey}%`,
+            //             `Car.ilike.%${sy2}-${ey2}%`,
+            //             `Car.ilike.%${sy}%`,
+            //             `Car.ilike.%${sy2}%`
+            //         ];
+            //         if (ey) orConditions.push(`Car.ilike.%${ey}%`);
+            //         if (ey2) orConditions.push(`Car.ilike.%${ey2}%`);
+            //         query = query.or(orConditions.join(','));
+            //     } else {
+            //         query = query.or(
+            //             [
+            //                 `Car.ilike.%${sy}%`,
+            //                 `Car.ilike.%${sy2}%`
+            //             ].join(',')
+            //         );
+            //     }
+            // }
+            const { data, error } = await query;
             if (error) {
                 console.error('Error fetching products:', error);
                 setProducts([]);
@@ -452,28 +485,26 @@ const Models = () => {
                                         </div>
                                     ) : (
                                         products.map((product, idx) => (
-                                            <div
+                                            <a
                                                 key={idx}
+                                                href={product.link}
                                                 style={{
-                                                    width: '100%',
-                                                    padding: '16px 0',
-                                                    background: '#fff',
-                                                    border: `1px solid ${headerRed}`,
-                                                    borderRadius: '8px',
-                                                    color: headerRed,
-                                                    fontWeight: 600,
-                                                    fontSize: '15px',
-                                                    textAlign: 'center',
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    minHeight: '140px',
-                                                    cursor: 'pointer',
+                                                    background: "#fff",
+                                                    borderRadius: 8,
+                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                                                    width: 200,
+                                                    minWidth: 200,
+                                                    textAlign: "center",
+                                                    textDecoration: "none",
+                                                    color: "#222",
+                                                    padding: 16,
+                                                    transition: "box-shadow 0.2s"
                                                 }}
                                             >
-                                                <span>{product.Description || product.text || product.Model}</span>
-                                            </div>
+                                                <img src={product.img} alt={product.Model} style={{ width: 120, height: 80, objectFit: "contain", marginBottom: 12 }} />
+                                                <div style={{ fontWeight: "bold", marginBottom: 4 }}>{product.Car}</div>
+                                                <div style={{ fontSize: 12, color: "#888" }}>Item: {product.AM}</div>
+                                            </a>
                                         ))
                                     )}
                                 </div>
