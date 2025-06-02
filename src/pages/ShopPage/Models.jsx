@@ -81,10 +81,12 @@ const Models = () => {
         const fetchProducts = async () => {
             setLoading(true);
 
+            // Simple search: filter by manufacturer and selectedModel (case-insensitive)
             const { data, error } = await supabase
                 .from('Parts')
                 .select('*')
-
+                .ilike('Car', `%${manufacturer}%`)
+                .ilike('Model', `%${selectedModel}%`)
             if (error) {
                 console.error('Error fetching products:', error);
                 setProducts([]);
@@ -296,7 +298,7 @@ const Models = () => {
                                         minHeight: '140px',
                                         cursor: 'pointer',
                                         position: 'relative',
-                                        zIndex: openDropdown === idx ? 20 : 1, // bring to front if open
+                                        zIndex: openDropdown === idx ? 20 : 1,
                                     }}
                                     onClick={() => {
                                         if (modelVariants.length === 1) {
@@ -305,7 +307,21 @@ const Models = () => {
                                             setOpenDropdown(openDropdown === idx ? null : idx);
                                         }
                                     }}
-                                    onMouseLeave={() => setOpenDropdown(null)}
+                                    onMouseLeave={() => {
+                                        setOpenDropdown(null);
+                                        setHoveredModel(null);
+                                    }}
+                                    onMouseEnter={e => {
+                                        if (modelVariants.length === 1) {
+                                            setHoveredModel(modelVariants[0]);
+                                            setMousePos({ x: e.clientX, y: e.clientY });
+                                        }
+                                    }}
+                                    onMouseMove={e => {
+                                        if (modelVariants.length === 1) {
+                                            setMousePos({ x: e.clientX, y: e.clientY });
+                                        }
+                                    }}
                                 >
                                     <span style={{ width: '100%' }}>
                                         {modelVariants[0].manufacturer}{" "}
@@ -315,6 +331,7 @@ const Models = () => {
                                         )}
                                     </span>
 
+                                    {/* Dropdown for multiple variants */}
                                     {modelVariants.length > 1 && openDropdown === idx && (
                                         <div style={{ position: 'relative' }}>
                                             <ul
@@ -379,29 +396,32 @@ const Models = () => {
                                                     </li>
                                                 ))}
                                             </ul>
-                                            {hoveredModel && (
-                                                <img
-                                                    src={"https://via.placeholder.com/150"}
-                                                    alt="model preview"
-                                                    style={{
-                                                        position: 'fixed',
-                                                        top: mousePos.y + 15,
-                                                        left: mousePos.x + 15,
-                                                        width: '150px',
-                                                        height: 'auto',
-                                                        pointerEvents: 'none',
-                                                        border: '1px solid #ccc',
-                                                        borderRadius: '4px',
-                                                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                                                        zIndex: 9999,
-                                                        transition: 'top 0.1s, left 0.1s',
-                                                    }}
-                                                />
-                                            )}
                                         </div>
+                                    )}
+
+                                    {/* Show image preview for both single and dropdown hover */}
+                                    {hoveredModel && (
+                                        <img
+                                            src={hoveredModel.image_path || 'https://via.placeholder.com/1'}
+                                            alt="model preview"
+                                            style={{
+                                                position: 'fixed',
+                                                top: mousePos.y + 15,
+                                                left: mousePos.x + 15,
+                                                width: '150px',
+                                                height: 'auto',
+                                                pointerEvents: 'none',
+                                                border: '1px solid #ccc',
+                                                borderRadius: '4px',
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                                                zIndex: 9999,
+                                                transition: 'top 0.1s, left 0.1s',
+                                            }}
+                                        />
                                     )}
                                 </div>
                             ))}
+
 
 
                         </div>
