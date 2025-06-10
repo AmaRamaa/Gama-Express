@@ -35,10 +35,11 @@ export default function AudiCatalog() {
           </li>
         ))}
       </ul>
+      <img src="src/assets/Audi/file_111754_1646992949.jpg" alt="" />
 
       {hoveredModel && (
         <img
-          src={hoveredModel.image}
+          src={"src/assets/Audi/file_111754_1646992949.jpg"}
           alt={hoveredModel.name}
           style={{
             position: 'fixed',

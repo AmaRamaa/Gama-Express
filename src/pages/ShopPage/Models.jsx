@@ -256,14 +256,12 @@ const Models = () => {
                                                 }}
                                                 onClick={e => {
                                                     e.stopPropagation();
-                                                    // Instead of handleBrandClick(bm), set the selected model for dropdown
                                                     setSelectedModel(bm.model);
                                                 }}
                                             >
                                                 <span>
                                                     {bm.variant ? `${bm.variant} ` : ''}
                                                     {bm.model ? `${bm.model} ` : ''}
-                                                    {/* Highlight () and - in red */}
                                                     {bm.start_year ? (
                                                         <span>
                                                             <span style={{ color: headerRed }}>(</span>
@@ -432,10 +430,13 @@ const Models = () => {
                                         </div>
                                     )}
 
-                                    {/* Show image preview for both single and dropdown hover */}
-                                    {hoveredModel && (
+                                    {hoveredModel && hoveredModel.image_path && (
                                         <img
-                                            src={hoveredModel.image_path || 'https://via.placeholder.com/1'}
+                                            src={
+                                                hoveredModel && hoveredModel.image_path
+                                                    ? hoveredModel.image_path.replace('src/assets', '/assets')
+                                                    : '/assets/CARPLACEHOLDER.png'
+                                            }
                                             alt="model preview"
                                             style={{
                                                 position: 'fixed',
@@ -452,6 +453,7 @@ const Models = () => {
                                             }}
                                         />
                                     )}
+
                                 </div>
                             ))}
 
@@ -485,9 +487,8 @@ const Models = () => {
                                         </div>
                                     ) : (
                                         products.map((product, idx) => (
-                                            <a
+                                            <div
                                                 key={idx}
-                                                href={product.link}
                                                 style={{
                                                     background: "#fff",
                                                     borderRadius: 8,
@@ -498,13 +499,25 @@ const Models = () => {
                                                     textDecoration: "none",
                                                     color: "#222",
                                                     padding: 16,
-                                                    transition: "box-shadow 0.2s"
+                                                    transition: "box-shadow 0.2s",
+                                                    cursor: "pointer"
+                                                }}
+                                                onClick={() => {
+                                                    // Save AM code to localStorage
+                                                    if (product.AM) {
+                                                        localStorage.setItem('selectedProductAM', product.AM);
+                                                    }
+                                                    // Navigate to ProductDetails page
+                                                    navigate(
+                                                        `/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(selectedModel)}/${encodeURIComponent(product.AM)}`,
+                                                        { replace: false }
+                                                    );
                                                 }}
                                             >
                                                 <img src={product.img} alt={product.Model} style={{ width: 120, height: 80, objectFit: "contain", marginBottom: 12 }} />
                                                 <div style={{ fontWeight: "bold", marginBottom: 4 }}>{product.Car}</div>
                                                 <div style={{ fontSize: 12, color: "#888" }}>Item: {product.AM}</div>
-                                            </a>
+                                            </div>
                                         ))
                                     )}
                                 </div>

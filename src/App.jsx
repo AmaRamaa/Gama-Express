@@ -7,10 +7,12 @@ import Home from './pages/HomePage/Home'
 import Header from './layouts/Header/Header'
 import Footer from './layouts/Footer/Footer'
 import Testing from './pages/TestingPage/Testing'
+import Breadcrumbs from './layouts/BreadCrums/BreadCrums'
 function App() {
   return (
 <Router>
       <Header />
+      <Breadcrumbs />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/catalog" element={<ShopPage />} />
