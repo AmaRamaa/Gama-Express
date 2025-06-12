@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 
 const breadcrumbNameMap = {
-    '/': 'Home',
+    '/home': 'Home',
     '/catalog': 'Catalog',
     '/catalog/:manufacturer': 'Manufacturer',
     '/catalog/:category/:subcategory/:product': 'Product Details',

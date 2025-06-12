@@ -6,7 +6,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 
 const navLinks = [
-    { label: "HOME", to: "/" },
+    { label: "HOME", to: "/home" },
     { label: "THE COMPANY", to: "/company" },
     { label: "CATALOG", to: "/catalog" },
     { label: "CONTACTS", to: "/contacts" },

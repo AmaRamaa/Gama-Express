@@ -91,35 +91,37 @@ const Models = () => {
                 .select('*')
                 .ilike('Car', `%${manufacturer}%`)
                 .ilike('Car', `%${selectedModel}%`);
-            // if (selectedModelObj && selectedModelObj.start_year) {
-            //     // If end_year exists, filter for the range, else just start_year
-            //     // Try both "2016-2020" and "16-20" and "2016" and "16" and "2020" and "20" in the Car field for flexibility
-            //     const sy = selectedModelObj.start_year.toString();
-            //     const ey = selectedModelObj.end_year ? selectedModelObj.end_year.toString() : null;
-            //     const sy2 = sy.slice(-2);
-            //     const ey2 = ey ? ey.slice(-2) : null;
 
-            //     if (ey) {
-            //         // Only include ey and ey2 if they are not null
-            //         const orConditions = [
-            //             `Car.ilike.%${sy}-${ey}%`,
-            //             `Car.ilike.%${sy2}-${ey2}%`,
-            //             `Car.ilike.%${sy}%`,
-            //             `Car.ilike.%${sy2}%`
-            //         ];
-            //         if (ey) orConditions.push(`Car.ilike.%${ey}%`);
-            //         if (ey2) orConditions.push(`Car.ilike.%${ey2}%`);
-            //         query = query.or(orConditions.join(','));
-            //     } else {
-            //         query = query.or(
-            //             [
-            //                 `Car.ilike.%${sy}%`,
-            //                 `Car.ilike.%${sy2}%`
-            //             ].join(',')
-            //         );
-            //     }
-            // }
+            // Filter by year range if available
+            // Ensure that the product's year range overlaps with the model's year range
+            if (selectedModelObj && selectedModelObj.start_year && selectedModelObj.end_year) {
+                query = query
+                    .lte('start_year', selectedModelObj.end_year)
+                    .gte('end_year', selectedModelObj.start_year);
+            } else if (selectedModelObj && selectedModelObj.start_year) {
+                query = query.lte('start_year', selectedModelObj.start_year);
+            }
+            // Fetch products from Supabase
             const { data, error } = await query;
+
+            // Filter products to only include those whose year range overlaps with the selected model's year range
+            let filteredData = data;
+            if (selectedModelObj && selectedModelObj.start_year && selectedModelObj.end_year && Array.isArray(data)) {
+                filteredData = data.filter(product => {
+                    // Product's year range
+                    const prodStart = Number(product.start_year) || Number(product.year_start) || Number(product.startYear);
+                    const prodEnd = Number(product.end_year) || Number(product.year_end) || Number(product.endYear);
+                    // Model's year range
+                    const modelStart = Number(selectedModelObj.start_year);
+                    const modelEnd = Number(selectedModelObj.end_year);
+
+                    // If any year is missing, include by default
+                    if (!prodStart || !prodEnd || !modelStart || !modelEnd) return true;
+
+                    // Check if ranges overlap
+                    return prodStart <= modelEnd && prodEnd >= modelStart;
+                });
+            }
             if (error) {
                 console.error('Error fetching products:', error);
                 setProducts([]);

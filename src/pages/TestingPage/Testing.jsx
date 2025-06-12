@@ -22,7 +22,7 @@ export default function AudiCatalog() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <ul>
+      <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
         {models.map((model) => (
           <li
             key={model.name}

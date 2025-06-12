@@ -8,20 +8,37 @@ import Header from './layouts/Header/Header'
 import Footer from './layouts/Footer/Footer'
 import Testing from './pages/TestingPage/Testing'
 import Breadcrumbs from './layouts/BreadCrums/BreadCrums'
+import DashboardLayout from './layouts/DashboardLayout/DashboardLayout'
 function App() {
   return (
-<Router>
-      <Header />
-      <Breadcrumbs />
+    <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/catalog" element={<ShopPage />} />
-        <Route path="/catalog/:manufacturer" element={<Models />} />
-        <Route path="/catalog/:category/:subcategory/:product" element={<ProductDetails />} />
-        <Route path="/testing" element={<Testing/>} /> 
-        <Route path="/home" element={<Home />} />
+        <Route
+          path="/dashboard/*"
+          element={
+            <DashboardLayout>
+              {/* Your dashboard content here */}
+            </DashboardLayout>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <>
+              <Header />
+              <Breadcrumbs />
+              <Routes>
+                <Route path="/home" element={<Home />} />
+                <Route path="/catalog" element={<ShopPage />} />
+                <Route path="/catalog/:manufacturer" element={<Models />} />
+                <Route path="/catalog/:category/:subcategory/:product" element={<ProductDetails />} />
+                <Route path="/testing" element={<Testing />} />
+              </Routes>
+              <Footer />
+            </>
+          }
+        />
       </Routes>
-      <Footer />
     </Router>
   )
 }
