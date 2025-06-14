@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import GamaLogo from "../../assets/Gamalogo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 
 const navLinks = [
-    { label: "HOME", to: "/home" },
+    { label: "HOME", to: "/" },
     { label: "THE COMPANY", to: "/company" },
     { label: "CATALOG", to: "/catalog" },
     { label: "CONTACTS", to: "/contacts" },
@@ -16,7 +16,17 @@ const navLinks = [
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [search, setSearch] = useState("");
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (search.trim()) {
+            // Navigate to /catalog?search=searchTerm
+            navigate(`/catalog?search=${encodeURIComponent(search.trim())}`);
+        }
+    };
 
     return (
         <div className="header-container"
@@ -82,12 +92,14 @@ const Header = () => {
                                     </li>
                                 ))}
                             </ul>
-                            <form className="d-flex align-items-center me-3" role="search">
+                            <form className="d-flex align-items-center me-3" role="search" onSubmit={handleSearch}>
                                 <input
                                     className="form-control rounded-start-pill border-danger"
                                     type="text"
                                     placeholder="Product name or item number..."
                                     style={{ width: 220, fontSize: 14 }}
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
                                 />
                                 <button className="btn btn-danger rounded-end-pill ms-n2" type="submit" style={{ width: 44, height: 44 }}>
                                     <i className="bi bi-search" style={{ fontSize: 20, color: "#fff" }}></i>

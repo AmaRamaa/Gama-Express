@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 
 const breadcrumbNameMap = {
-    '/home': 'Home',
+    '/': 'Home',
     '/catalog': 'Catalog',
     '/catalog/:manufacturer': 'Manufacturer',
     '/catalog/:category/:subcategory/:product': 'Product Details',
@@ -20,10 +20,8 @@ function getBreadcrumbs(location) {
             url,
         };
     });
-    // Always start with Home, but only as the root
     return [ ...crumbs];
 }
-
 
 export default function Breadcrumbs() {
     const location = useLocation();
@@ -46,6 +44,21 @@ export default function Breadcrumbs() {
         >
             {breadcrumbs.map((crumb, idx) => {
                 const isLast = idx === breadcrumbs.length - 1;
+                let displayName = crumb.name;
+
+                // If this is the model breadcrumb (e.g. /catalog/AUDI/A3-2017-2020-ALLROAD)
+                if (
+                    crumb.url.startsWith('/catalog/') &&
+                    idx >= 2 && // 0: catalog, 1: manufacturer, 2: model
+                    crumb.name &&
+                    crumb.name.includes('-')
+                ) {
+                    const modelParts = crumb.name.split('-');
+                    displayName = modelParts.length > 1
+                        ? `${modelParts[0]} (${modelParts.slice(1).join(' ')})`
+                        : crumb.name;
+                }
+
                 return (
                     <span key={crumb.url} style={{ display: 'flex', alignItems: 'center' }}>
                         {idx > 0 && (
@@ -62,7 +75,7 @@ export default function Breadcrumbs() {
                                 }}
                                 aria-current="page"
                             >
-                                {crumb.name}
+                                {displayName}
                             </span>
                         ) : (
                             <Link
@@ -75,7 +88,7 @@ export default function Breadcrumbs() {
                                 }}
                                 tabIndex={0}
                             >
-                                {crumb.name}
+                                {displayName}
                             </Link>
                         )}
                     </span>

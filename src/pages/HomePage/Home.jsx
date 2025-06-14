@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 
-// Responsive styles
+// Styles
 const styles = {
     page: {
         fontFamily: "Inter, Arial, sans-serif",
@@ -14,26 +14,67 @@ const styles = {
         padding: 0,
         margin: 0,
     },
+    heroSection: {
+        maxWidth: 900,
+        margin: "48px auto 32px",
+        background: "#fff",
+        borderRadius: 16,
+        boxShadow: "0 4px 24px rgba(80,80,180,0.07)",
+        padding: 32,
+        textAlign: "center",
+    },
+    logo: {
+        width: 240,
+        maxWidth: "90%",
+        marginBottom: 24,
+        filter: "drop-shadow(0 2px 8px #e0e7ff)",
+    },
+    heroText: {
+        color: "#222",
+        fontSize: 17,
+        fontWeight: "bold",
+        marginBottom: 10,
+    },
+    heroSubText: {
+        color: "#444",
+        fontSize: 15,
+        marginBottom: 10,
+    },
+    warehouseImg: {
+        width: 320,
+        maxWidth: "100%",
+        marginTop: 24,
+        borderRadius: 12,
+        boxShadow: "0 2px 12px rgba(80,80,180,0.10)",
+    },
+    sectionTitle: {
+        fontSize: 22,
+        color: "#6366f1",
+        fontWeight: 700,
+        letterSpacing: 1,
+        textAlign: "center",
+        margin: "24px auto 16px",
+        textShadow: "0 2px 8px #e0e7ff",
+    },
     marqueeSection: {
         overflowX: "hidden",
-        margin: "32px 0",
-        position: "relative",
+        margin: "0 auto 48px",
         background: "linear-gradient(90deg, #fff 80%, #e0e7ff 100%)",
         borderRadius: 16,
         boxShadow: "0 4px 24px rgba(80,80,180,0.07)",
         padding: "16px 0",
+        position: "relative",
+        maxWidth: 1200,
     },
     marqueeContainer: {
         width: "100%",
         position: "relative",
         height: 220,
-        maxWidth: 1200,
         margin: "0 auto",
     },
     marqueeTrack: {
         display: "flex",
         gap: 24,
-        minWidth: 0,
         position: "absolute",
         left: 0,
         top: 0,
@@ -49,7 +90,6 @@ const styles = {
         minWidth: 180,
         maxWidth: 240,
         textAlign: "center",
-        textDecoration: "none",
         color: "#222",
         padding: 20,
         transition: "box-shadow 0.2s, transform 0.2s",
@@ -57,6 +97,7 @@ const styles = {
         flexDirection: "column",
         alignItems: "center",
         cursor: "pointer",
+        textDecoration: "none",
     },
     cardHover: {
         boxShadow: "0 6px 24px rgba(80,80,180,0.18)",
@@ -70,37 +111,27 @@ const styles = {
         borderRadius: 8,
         background: "#f3f4f6",
     },
-    aboutSection: {
-        maxWidth: 900,
-        margin: "32px auto",
-        background: "#fff",
-        borderRadius: 16,
-        boxShadow: "0 4px 24px rgba(80,80,180,0.07)",
-        padding: 32,
-        textAlign: "center",
+    fadeLeft: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 60,
+        background: "linear-gradient(90deg, #f8f8f8 80%, transparent)",
+        pointerEvents: "none",
     },
-    aboutLogo: {
-        width: 260,
-        maxWidth: "90%",
-        marginBottom: 24,
-        filter: "drop-shadow(0 2px 8px #e0e7ff)",
-    },
-    aboutImg: {
-        width: 320,
-        maxWidth: "100%",
-        marginTop: 24,
-        borderRadius: 12,
-        boxShadow: "0 2px 12px rgba(80,80,180,0.10)",
-    },
-    "@media (max-width: 700px)": {
-        marqueeContainer: { height: 170 },
-        card: { width: 150, minWidth: 120, padding: 10 },
-        aboutSection: { padding: 16 },
-        aboutLogo: { width: 180 },
-        aboutImg: { width: 180 },
+    fadeRight: {
+        position: "absolute",
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: 60,
+        background: "linear-gradient(270deg, #f8f8f8 80%, transparent)",
+        pointerEvents: "none",
     },
 };
 
+// Hover Hook
 function useHover() {
     const [hovered, setHovered] = useState(false);
     const ref = useRef();
@@ -119,33 +150,33 @@ function useHover() {
     return [ref, hovered];
 }
 
-function MarqueeCard({ item, responsiveStyle, styles }) {
+// Card Component
+function MarqueeCard({ item }) {
     const [cardRef, hovered] = useHover();
     return (
         <a
             href={item.link}
             ref={cardRef}
             style={{
-                ...responsiveStyle("card"),
+                ...styles.card,
                 ...(hovered ? styles.cardHover : {}),
             }}
         >
             <img src={item.img} alt={item.Model} style={styles.cardImg} />
-            <div style={{ fontWeight: "bold", marginBottom: 4, fontSize: 16 }}>{item.Car}</div>
-            <div style={{ fontSize: 13, color: "#6366f1", fontWeight: 500 }}>Item: {item.AM}</div>
+            <div style={{ fontWeight: "bold", fontSize: 16 }}>{item.Car}</div>
+            <div style={{ fontSize: 13, color: "#6366f1", fontWeight: 500 }}>Item Code: {item.AM}</div>
         </a>
     );
 }
 
+// Home Page Component
 export default function Home() {
     const [newItems, setNewItems] = useState([]);
     const marqueeRef = useRef();
 
     useEffect(() => {
         async function fetchItems() {
-            const { data, error } = await supabase
-                .from("Parts")
-                .select("*");
+            const { data, error } = await supabase.from("Parts").select("*");
             if (!error && data) {
                 setNewItems(
                     data.map((item) => ({
@@ -159,14 +190,13 @@ export default function Home() {
         fetchItems();
     }, []);
 
-    // Marquee animation
     useEffect(() => {
         const el = marqueeRef.current;
         if (!el || newItems.length === 0) return;
         let req;
         let pos = 0;
-        let speed = 0.7; // px per frame
-        let trackWidth = el.scrollWidth / 2;
+        const speed = 0.7;
+        const trackWidth = el.scrollWidth / 2;
 
         function step() {
             pos -= speed;
@@ -175,72 +205,48 @@ export default function Home() {
             req = requestAnimationFrame(step);
         }
 
-        // Duplicate for seamless loop
         if (el.children.length === newItems.slice(0, 10).length) {
             for (let i = 0; i < newItems.slice(0, 10).length; i++) {
                 el.appendChild(el.children[i].cloneNode(true));
             }
         }
+
         req = requestAnimationFrame(step);
         return () => cancelAnimationFrame(req);
     }, [newItems]);
 
-    // Responsive style helper
-    function responsiveStyle(key) {
-        // You can enhance this for more complex responsive logic
-        return styles[key];
-    }
-
     return (
         <div style={styles.page}>
-            {/* Marquee Section */}
+            {/* Hero Section */}
+            <section style={styles.heroSection}>
+                <img src={GamaLogo} alt="Gama Express Logo" style={styles.logo} />
+                <p style={styles.heroText}>
+                    Welcome to Gama Express – your one-stop destination for premium auto parts!
+                </p>
+                <p style={styles.heroSubText}>
+                    Browse through our vast inventory, discover unbeatable deals, and enjoy fast service backed by a passionate team ready to help you.
+                </p>
+                <img
+                    src="https://www.prasco.net/images/warehouse.jpg"
+                    alt="Gama Warehouse"
+                    style={styles.warehouseImg}
+                />
+            </section>
+
+            {/* Product Marquee */}
+            <h2 style={styles.sectionTitle}>Latest Products</h2>
             <section style={styles.marqueeSection}>
                 <div style={styles.marqueeContainer}>
                     <div ref={marqueeRef} style={styles.marqueeTrack}>
                         {newItems.slice(0, 10).map((item, idx) => (
-                            <MarqueeCard
-                                key={idx}
-                                item={item}
-                                responsiveStyle={responsiveStyle}
-                                styles={styles}
-                            />
+                            <MarqueeCard key={idx} item={item} />
                         ))}
                     </div>
+                    <div style={styles.fadeLeft} />
+                    <div style={styles.fadeRight} />
                 </div>
-                <div style={{
-                    position: "absolute",
-                    left: 0, top: 0, bottom: 0, width: 60,
-                    background: "linear-gradient(90deg, #f8f8f8 80%, transparent)",
-                    pointerEvents: "none"
-                }} />
-                <div style={{
-                    position: "absolute",
-                    right: 0, top: 0, bottom: 0, width: 60,
-                    background: "linear-gradient(270deg, #f8f8f8 80%, transparent)",
-                    pointerEvents: "none"
-                }} />
-                <h2 style={{
-                    position: "absolute",
-                    left: 32, top: 8,
-                    fontSize: 22,
-                    color: "#6366f1",
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    textShadow: "0 2px 8px #e0e7ff",
-                    zIndex: 2,
-                }}>Νέα Ανταλλακτικά</h2>
             </section>
-            {/* About Section */}
-            <section style={styles.aboutSection}>
-                <img src={GamaLogo} alt="Gama Express" style={styles.aboutLogo} />
-                <p style={{ color: "#222", fontWeight: "bold", fontSize: 17, marginBottom: 12 }}>
-                    Καλώς ήρθατε στη Gama Express! Εδώ θα βρείτε μοναδικά ανταλλακτικά αυτοκινήτων με άμεση διαθεσιμότητα και εξυπηρέτηση.
-                </p>
-                <p style={{ color: "#222", fontSize: 15, marginBottom: 12 }}>
-                    Ανακαλύψτε τη μεγάλη μας γκάμα και επωφεληθείτε από τις προσφορές μας. Η ομάδα μας είναι πάντα δίπλα σας για να σας βοηθήσει!
-                </p>
-                <img src="https://www.prasco.net/images/warehouse.jpg" alt="Warehouse" style={styles.aboutImg} />
-            </section>
+            
         </div>
     );
 }

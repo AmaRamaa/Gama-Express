@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supaBase/supaBase';
 import './index.css'
 
@@ -8,27 +8,15 @@ const headerBlack = 'black';
 const headerRed = '#e53935'; // Material Red 600, or pick your preferred red
 const headerRedLight = '#ffeaea'; // or pick a light red that fits your theme
 
-const models = [
-    {
-        name: "Audi A1",
-        image: "https://example.com/images/audi-a1.jpg"
-    },
-    {
-        name: "Audi A3",
-        image: "https://example.com/images/audi-a3.jpg"
-    },
-    // add more models and images here
-];
-
-
 const Models = () => {
-    const { manufacturer } = useParams();
+    const { manufacturer, model } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [manufacturers, setManufacturers] = React.useState([]);
     const [models, setModels] = React.useState([]);
     const [products, setProducts] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
-    const [selectedModel, setSelectedModel] = React.useState(null);
+    const [selectedModel, setSelectedModel] = useState(model || null);
     const [openDropdown, setOpenDropdown] = React.useState(null);
     const [hoveredModel, setHoveredModel] = useState(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -137,21 +125,50 @@ const Models = () => {
         navigate(`/catalog/${encodeURIComponent(b.manufacturer || b.name)}`, { replace: false });
     };
 
+    // Get search query from URL
+    const params = new URLSearchParams(location.search);
+    const searchQuery = params.get("search")?.toLowerCase() || "";
 
+    // Fetch all products if search query exists and no manufacturer is selected
+    React.useEffect(() => {
+        if (!manufacturer && searchQuery) {
+            setLoading(true);
+            const fetchAllProducts = async () => {
+                // Fetch all products from Supabase
+                const { data, error } = await supabase
+                    .from('Parts')
+                    .select('*');
+                if (error) {
+                    setProducts([]);
+                } else {
+                    setProducts(data || []);
+                }
+                setLoading(false);
+            };
+            fetchAllProducts();
+        }
+    }, [manufacturer, searchQuery]);
 
-    // If no manufacturer, show all products
-    if (!manufacturer) {
+    // Filter products based on search query
+    const filteredProducts = products.filter(product =>
+        product.Car?.toLowerCase().includes(searchQuery) ||
+        product.AM?.toLowerCase().includes(searchQuery) ||
+        product.OEM?.toLowerCase().includes(searchQuery)
+    );
+
+    // If there is a search query and no manufacturer, show filtered products
+    if (!manufacturer && searchQuery) {
         return (
             <div className="container-fluid mt-5" style={{ maxWidth: '100vw', padding: 0, background: '#fff', borderRadius: '0 0 8px 8px' }}>
                 <div style={{ minHeight: '80vh' }}>
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
-                        All Products
+                        Search Results
                     </h3>
                     {loading && <div>Loading...</div>}
                     {!loading && (
-                        products.length === 0 ? (
+                        filteredProducts.length === 0 ? (
                             <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
-                                No parts found for this model.
+                                No parts found for this search.
                             </div>
                         ) : (
                             <div
@@ -167,7 +184,7 @@ const Models = () => {
                                     padding: '24px 0',
                                 }}
                             >
-                                {products.map((product, idx) => (
+                                {filteredProducts.map((product, idx) => (
                                     <div
                                         key={idx}
                                         style={{
@@ -199,10 +216,99 @@ const Models = () => {
         );
     }
 
+    // Fetch all parts for a manufacturer if only manufacturer is present (no model)
+    React.useEffect(() => {
+        if (manufacturer && !model) {
+            setLoading(true);
+            const fetchManufacturerParts = async () => {
+                const { data, error } = await supabase
+                    .from('Parts')
+                    .select('*')
+                    .ilike('Car', `%${manufacturer}%`);
+                if (error) {
+                    setProducts([]);
+                } else {
+                    setProducts(data || []);
+                }
+                setLoading(false);
+            };
+            fetchManufacturerParts();
+            setSelectedModel(null);
+        }
+    }, [manufacturer, model]);
+
+    // If manufacturer is present and no model, show all parts for that manufacturer
+    // if (manufacturer && !model) {
+    //     return (
+    //         <div className="container-fluid mt-5" style={{ maxWidth: '100vw', padding: 0, background: '#fff', borderRadius: '0 0 8px 8px' }}>
+    //             <div style={{ minHeight: '80vh' }}>
+    //                 <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
+    //                     All Parts for {manufacturer}
+    //                 </h3>
+    //                 {loading && <div>Loading...</div>}
+    //                 {!loading && (
+    //                     products.length === 0 ? (
+    //                         <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
+    //                             No parts found for this manufacturer.
+    //                         </div>
+    //                     ) : (
+    //                         <div
+    //                             className="products-grid container"
+    //                             style={{
+    //                                 display: 'grid',
+    //                                 gridTemplateColumns: 'repeat(5, 1fr)',
+    //                                 gap: '24px',
+    //                                 justifyItems: 'center',
+    //                                 background: '#fff',
+    //                                 border: `1px solid ${headerRed}`,
+    //                                 borderRadius: '0 0 8px 8px',
+    //                                 padding: '24px 0',
+    //                             }}
+    //                         >
+    //                             {products.map((product, idx) => (
+    //                                 <div
+    //                                     key={idx}
+    //                                     style={{
+    //                                         background: "#fff",
+    //                                         borderRadius: 8,
+    //                                         boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+    //                                         width: 200,
+    //                                         minWidth: 200,
+    //                                         textAlign: "center",
+    //                                         textDecoration: "none",
+    //                                         color: "#222",
+    //                                         padding: 16,
+    //                                         transition: "box-shadow 0.2s",
+    //                                         cursor: "pointer"
+    //                                     }}
+    //                                     onClick={() => {
+    //                                         if (product.AM) {
+    //                                             localStorage.setItem('selectedProductAM', product.AM);
+    //                                         }
+    //                                         navigate(
+    //                                             `/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(product.Model)}/${encodeURIComponent(product.AM)}`,
+    //                                             { replace: false }
+    //                                         );
+    //                                     }}
+    //                                 >
+    //                                     <img src={product.img} alt={product.Model} style={{ width: 120, height: 80, objectFit: "contain", marginBottom: 12 }} />
+    //                                     <div style={{ fontWeight: "bold", marginBottom: 4 }}>{product.Car}</div>
+    //                                     <div style={{ fontSize: 12, color: "#888" }}>Item: {product.AM}</div>
+    //                                 </div>
+    //                             ))}
+    //                         </div>
+    //                     )
+    //                 )}
+    //             </div>
+    //         </div>
+    //     );
+    // }
+
     // Show brands sidebar and models grid, and products grid only after model is clicked
     return (
         <div className="container-fluid mt-5" style={{ maxWidth: '100vw', padding: 0, background: '#fff', borderRadius: '0 0 8px 8px' }}>
             <div style={{ display: 'flex', minHeight: '80vh' }}>
+                {/* Sidebar */}
                 <div style={{ borderRight: '1px solid #eaeaea', padding: '24px 0', background: '#f9f9f9', overflow: 'scroll', height: '720px' }}>
                     <h5 style={{ color: headerRed, textAlign: 'center' }}>Brands</h5>
                     <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -242,50 +348,12 @@ const Models = () => {
                                         />
                                     )}
                                     <span>{brandName}</span>
-                                    {brandModels.length > 1 && (
-                                        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#888' }}>▼</span>
-                                    )}
                                 </div>
-                                {brandModels.length > 1 && (
-                                    <ul style={{ listStyle: 'none', paddingLeft: '40px', margin: 0 }}>
-                                        {brandModels.map((bm, i) => (
-                                            <li
-                                                key={i}
-                                                style={{
-                                                    padding: '6px 0',
-                                                    cursor: 'pointer',
-                                                    color: bm.manufacturer === manufacturer ? headerRed : '#333',
-                                                }}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    setSelectedModel(bm.model);
-                                                }}
-                                            >
-                                                <span>
-                                                    {bm.variant ? `${bm.variant} ` : ''}
-                                                    {bm.model ? `${bm.model} ` : ''}
-                                                    {bm.start_year ? (
-                                                        <span>
-                                                            <span style={{ color: headerRed }}>(</span>
-                                                            {bm.start_year}
-                                                            {bm.end_year ? (
-                                                                <>
-                                                                    <span style={{ color: headerRed }}>-</span>
-                                                                    {bm.end_year}
-                                                                </>
-                                                            ) : null}
-                                                            <span style={{ color: headerRed }}>)</span>
-                                                        </span>
-                                                    ) : ''}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
                             </li>
                         ))}
                     </ul>
                 </div>
+                {/* Main Content */}
                 <div style={{ flex: 1 }}>
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
                         Models for {manufacturer}
@@ -336,6 +404,7 @@ const Models = () => {
                                     onClick={() => {
                                         if (modelVariants.length === 1) {
                                             setSelectedModel(modelVariants[0].model);
+                                            navigate(`/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(modelVariants[0].model)}`);
                                         } else {
                                             setOpenDropdown(openDropdown === idx ? null : idx);
                                         }
@@ -397,8 +466,15 @@ const Models = () => {
                                                         }}
                                                         onClick={e => {
                                                             e.stopPropagation();
-                                                            setSelectedModel(variantObj.model);
+                                                            const detail = [
+                                                                variantObj.model,
+                                                                variantObj.start_year,
+                                                                variantObj.end_year,
+                                                                variantObj.variant
+                                                            ].filter(Boolean).join('-');
+                                                            setSelectedModel(detail);
                                                             setOpenDropdown(null);
+                                                            navigate(`/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(detail)}`);
                                                         }}
                                                         onMouseEnter={e => {
                                                             setHoveredModel(variantObj);
@@ -483,12 +559,12 @@ const Models = () => {
                                         padding: '24px 0',
                                     }}
                                 >
-                                    {products.length === 0 ? (
+                                    {filteredProducts.length === 0 ? (
                                         <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#888', fontSize: '18px' }}>
                                             No parts found for this model.
                                         </div>
                                     ) : (
-                                        products.map((product, idx) => (
+                                        filteredProducts.map((product, idx) => (
                                             <div
                                                 key={idx}
                                                 style={{
