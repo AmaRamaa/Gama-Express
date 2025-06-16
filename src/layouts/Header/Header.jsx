@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import GamaLogo from "../../assets/Gamalogo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
+import { supabase } from "../../supaBase/supaBase";
 
 const navLinks = [
     { label: "HOME", to: "/" },
@@ -17,30 +18,59 @@ const navLinks = [
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [search, setSearch] = useState("");
+    const [showHeader, setShowHeader] = useState(true); // NEW
+    const lastScrollY = useRef(window.scrollY); // NEW
     const location = useLocation();
     const navigate = useNavigate();
+
+    // Scroll handler for sticky header animation
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY < 50) {
+                setShowHeader(true);
+            } else if (currentScrollY > lastScrollY.current) {
+                setShowHeader(false); // scrolling down
+            } else {
+                setShowHeader(true); // scrolling up
+            }
+            lastScrollY.current = currentScrollY;
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const handleSearch = (e) => {
         e.preventDefault();
         if (search.trim()) {
-            // Navigate to /catalog?search=searchTerm
             navigate(`/catalog?search=${encodeURIComponent(search.trim())}`);
         }
     };
 
-    return (
-        <div className="header-container"
-            style={{zIndex: 1500000, position: "sticky", top: 0, width: "100%", backgroundColor: "#fff", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)" }}>  
-            {/* Top Bar
-            <div className="bg-danger text-white text-center fw-semibold py-2" style={{ fontSize: 16 }}>
-              
-            </div> */}
+    const handleProfileClick = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            navigate("/profile");
+        } else {
+            navigate("/login");
+        }
+    };
 
-            {/* Main Header */}
+    return (
+        <div
+            className={`header-container${showHeader ? " header-visible" : " header-hidden"}`}
+            style={{
+                zIndex: 1500000,
+                position: "sticky",
+                top: 0,
+                width: "100%",
+                backgroundColor: "#fff",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)"
+            }}
+        >
             <header className="bg-white shadow-sm" style={{ height: "100px", display: "flex", alignItems: "center" }}>
                 <nav className="navbar navbar-expand-lg w-100">
                     <div className="container-fluid" style={{ maxWidth: 1400 }}>
-                        {/* Logo */}
                         <Link className="navbar-brand" to="/">
                             <img
                                 src={GamaLogo}
@@ -48,7 +78,6 @@ const Header = () => {
                                 style={{ height: 48, marginLeft: 12 }}
                             />
                         </Link>
-                        {/* Hamburger */}
                         <button
                             className="navbar-toggler"
                             type="button"
@@ -73,7 +102,6 @@ const Header = () => {
                                             })}
                                         >
                                             {link.label}
-                                            {/* Active underline */}
                                             <span
                                                 style={{
                                                     display: "block",
@@ -105,11 +133,9 @@ const Header = () => {
                                     <i className="bi bi-search" style={{ fontSize: 20, color: "#fff" }}></i>
                                 </button>
                             </form>
-                            {/* User/Login */}
                             <div className="d-flex align-items-center" style={{ gap: 8 }}>
                                 <span className="fs-6 text-dark">Customer service</span>
-                                <span className="fs-6 text-dark">Login</span>
-                                <span className="fs-4 text-dark ms-2" style={{ cursor: "pointer" }}>
+                                <span className="fs-4 text-dark ms-2" style={{ cursor: "pointer" }} onClick={handleProfileClick}>
                                     <i className="bi bi-person-circle"></i>
                                 </span>
                             </div>

@@ -40,3 +40,13 @@
         background: radial-gradient(circle at 30% 40%, #f5f5f5 0%, #f0eaea 60%, #a5a5a5 100%);
     }
 }
+
+.header-container {
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.header-hidden {
+    transform: translateY(-110%);
+}
+.header-visible {
+    transform: translateY(0);
+}

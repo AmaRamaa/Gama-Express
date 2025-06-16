@@ -27,6 +27,11 @@ export default function Breadcrumbs() {
     const location = useLocation();
     const breadcrumbs = getBreadcrumbs(location);
 
+    // Hide breadcrumbs on /login route
+    if (location.pathname === '/login') {
+        return null;
+    }
+
     return (
         <nav
             style={{

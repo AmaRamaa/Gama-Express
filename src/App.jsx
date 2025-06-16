@@ -11,6 +11,8 @@ import Breadcrumbs from "./layouts/BreadCrums/BreadCrums"
 import { supabase } from "./supaBase/supaBase"
 import SearchResultsPage from "./pages/ShopPage/SearchResultsPage"
 import DashboardRouting from "./dashboard/DashboardRouting"
+import Auth from "./pages/Auth/Auth"
+import Profile from "./pages/Auth/Profile" 
 
 function CatalogManufacturersWrapper() {
   const [manufacturers, setManufacturers] = useState([])
@@ -107,6 +109,8 @@ function App() {
                   element={<ProductDetails />}
                 />
                 <Route path="/testing" element={<Testing />} />
+                <Route path="/Login" element={<Auth />} />
+                <Route path="/profile" element={<Profile />} />
                 {/* Dashboard routes without Header/Footer */}
               </Routes>
               <Footer />
