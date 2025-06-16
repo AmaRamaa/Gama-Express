@@ -9,21 +9,6 @@ const DashboardHome = React.lazy(() => import('./pages/Home/DashboardHome'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
 
-const TAB_COMPONENTS = {
-    home: DashboardHome,
-    'manufacture-list': NotFound,
-    'manufacture-create': NotFound,
-    'models-list': NotFound,
-    'models-create': NotFound,
-    'parts-list': NotFound,
-    'parts-create': NotFound,
-    'profiles-list': NotFound,
-    'profiles-create': NotFound,
-    'profile-view': NotFound,
-    'profile-edit': NotFound,
-    'settings-general': NotFound,
-    'settings-security': NotFound,
-};
 
 const TABS = [
     { id: 'home', icon: <FaHome />, label: 'Home', path: '/', undeletable: true },
@@ -42,6 +27,21 @@ const TABS = [
     { id: 'logout', icon: <FaSignOutAlt />, label: 'Logout', path: '/logout' }
 ];
 
+const TAB_COMPONENTS = {
+    home: (props) => <DashboardHome {...props} TABS />,
+    'manufacture-list': NotFound,
+    'manufacture-create': NotFound,
+    'models-list': NotFound,
+    'models-create': NotFound,
+    'parts-list': NotFound,
+    'parts-create': NotFound,
+    'profiles-list': NotFound,
+    'profiles-create': NotFound,
+    'profile-view': NotFound,
+    'profile-edit': NotFound,
+    'settings-general': NotFound,
+    'settings-security': NotFound,
+};
 // Example sidebar menu structure for Sidebar component
 
 
