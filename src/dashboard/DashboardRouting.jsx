@@ -4,6 +4,10 @@ import Sidebar from './components/SideBar/Sidebar.jsx';
 import Header from './components/Header/Header';
 import './Style.css';
 import { FaHome, FaCog, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import ManufacturesList from './pages/Manufacture/ManufactureList';
+import ManufacturesCreate from './pages/Manufacture/ManufactureCreate';
+import ModelsList from './pages/Models/ModelsList';
+import ModelsCreate from './pages/Models/ModelsCreate';
 
 const DashboardHome = React.lazy(() => import('./pages/Home/DashboardHome'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
@@ -27,10 +31,10 @@ const TABS = [
 
 const TAB_COMPONENTS = {
     home: (props) => <DashboardHome {...props} TABS />,
-    'manufacture-list': NotFound,
-    'manufacture-create': NotFound,
-    'models-list': NotFound,
-    'models-create': NotFound,
+    'manufacture-list': () => <ManufacturesList />,
+    'manufacture-create': () => <ManufacturesCreate />,
+    'models-list':  () => <ModelsList />,
+    'models-create': () => <ModelsCreate />,
     'parts-list': NotFound,
     'parts-create': NotFound,
     'profiles-list': NotFound,

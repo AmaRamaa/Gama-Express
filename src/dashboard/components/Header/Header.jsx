@@ -14,7 +14,7 @@ const Header = ({
     const [loading, setLoading] = React.useState(true);
     const [draggedIdx, setDraggedIdx] = React.useState(null);
     const [dragOverIdx, setDragOverIdx] = React.useState(null);
-
+    // Auth logic removed
     const navigate = window.location ? (path) => { window.location.href = path; } : () => {};
 
     React.useEffect(() => {
