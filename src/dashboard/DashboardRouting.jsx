@@ -8,8 +8,6 @@ import { FaHome, FaCog, FaUser, FaSignOutAlt } from 'react-icons/fa';
 const DashboardHome = React.lazy(() => import('./pages/Home/DashboardHome'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 
-
-
 const TABS = [
     { id: 'home', icon: <FaHome />, label: 'Home', path: '/', undeletable: true },
     { id: 'manufacture-list', icon: <FaCog />, label: 'Manufacture List', path: '/manufacture' },
@@ -146,6 +144,11 @@ const openTab = (tabId) => {
     });
   };
 
+  const handleTabReorder = (newTabs) => {
+    setTabs(newTabs);
+    localStorage.setItem('dashboardTabs', JSON.stringify(newTabs));
+};
+
   // Sidebar click handler
   const handleSidebarClick = (tabId) => {
     openTab(tabId);
@@ -165,11 +168,14 @@ const openTab = (tabId) => {
           tabs={tabs}
           onTabClick={tab => openTab(tab.id)}
           onTabClose={closeTab}
+          onTabReorder={handleTabReorder}
           actions={[{ label: 'Settings', onClick: () => openTab('settings') }]}
         />
         <div style={contentStyle}>
           <Suspense fallback={<div>Loading...</div>}>
-            {ActiveComponent && <ActiveComponent />}
+            {ActiveComponent && (activeTab.id === 'home'
+        ? <DashboardHome onQuickAction={openTab} />
+        : <ActiveComponent />)}
           </Suspense>
         </div>
       </div>

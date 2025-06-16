@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 // Example: get active section from localStorage or another source
 const getActiveSection = () => {
@@ -38,15 +38,16 @@ const getAllSections = () => [
         id: 'reports',
         title: 'Raportet e shpejta',
         items: [
-            { id: 'profiles-list', icon: <FaUser />, label: 'PL', desc: 'Profiles List', color: '#42A5F5', link: '/profiles' },
-            { id: 'profiles-create', icon: <FaUser />, label: 'PC', desc: 'Profiles Create', color: '#42A5F5', link: '/profiles/create' },
-            { id: 'profile-view', icon: <FaUser />, label: 'VP', desc: 'View Profile', color: '#42A5F5', link: '/profile/view' },
-            { id: 'profile-edit', icon: <FaUser />, label: 'EP', desc: 'Edit Profile', color: '#42A5F5', link: '/profile/edit' },
-            { id: 'settings-general', icon: <FaCog />, label: 'G', desc: 'General', color: '#42A5F5', link: '/settings/general' },
-            { id: 'settings-security', icon: <FaCog />, label: 'S', desc: 'Security', color: '#42A5F5', link: '/settings/security' },
+            { id: 'profiles-list', label: 'PL', desc: 'Profiles List', color: '#42A5F5', link: '/profiles' },
+            { id: 'profiles-create', label: 'PC', desc: 'Profiles Create', color: '#42A5F5', link: '/profiles/create' },
+            { id: 'profile-view', label: 'VP', desc: 'View Profile', color: '#42A5F5', link: '/profile/view' },
+            { id: 'profile-edit', label: 'EP', desc: 'Edit Profile', color: '#42A5F5', link: '/profile/edit' },
+            { id: 'settings-general', label: 'G', desc: 'General', color: '#42A5F5', link: '/settings/general' },
+            { id: 'settings-security', label: 'S', desc: 'Security', color: '#42A5F5', link: '/settings/security' },
         ],
     },
 ];
+
 
 // Only include "Veprimet e shpejta" if active
 const getInitialSections = () =>
@@ -54,7 +55,7 @@ const getInitialSections = () =>
         section => section.id !== 'actions' || getActiveSection() === 'actions'
     );
 
-function Section({ section, onDragStart, onDragOver, onDrop, draggable }) {
+function Section({ section, onDragStart, onDragOver, onDrop, draggable, onQuickAction }) {
     const [isDragging, setIsDragging] = useState(false);
 
     return (
@@ -134,6 +135,7 @@ function Section({ section, onDragStart, onDragOver, onDrop, draggable }) {
                                 cursor: 'pointer',
                                 transform: isDragging ? 'scale(0.97)' : 'none',
                             }}
+                            onClick={() => onQuickAction && onQuickAction(item.id)}
                         >
                             {item.label}
                         </div>
@@ -146,7 +148,7 @@ function Section({ section, onDragStart, onDragOver, onDrop, draggable }) {
 }
 
 const LOCAL_STORAGE_KEY = "dashboardHomeSections";
-const DashboardHome = () => {
+const DashboardHome = ({ onQuickAction }) => {
     // Load from localStorage or use initialSections
     const [sections, setSections] = useState(() => {
         const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -199,6 +201,7 @@ const DashboardHome = () => {
         setDraggedId(null);
     };
 
+
     return (
         <div style={{ padding: '2rem', maxWidth: 900, margin: '0 auto' }}>
             <div style={{ fontSize: 18, fontWeight: 500, marginBottom: 24, color: '#444' }}>
@@ -212,6 +215,7 @@ const DashboardHome = () => {
                     onDragOver={onDragOver}
                     onDrop={onDrop}
                     draggable
+                    onQuickAction={onQuickAction}
                 />
             ))}
         </div>
