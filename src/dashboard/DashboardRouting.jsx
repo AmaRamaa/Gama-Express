@@ -191,3 +191,5 @@ const openTab = (tabId) => {
     </div>
   );
 };
+
+export default DashboardRouting;

@@ -13,16 +13,12 @@ const quickLinks = [
 ];
 
 const seats = [
-    "Italia - Leini (Torino)",
-    "Italia - Milano",
-    "Italia - Bologna",
-    "Italia - Roma",
-    "Italia - Bari",
-    "Deutschland - Ahlen",
-    "United Kingdom - Doncaster",
-    "Espana - Barcellona",
-    "Espana - Madrid",
-    "Francia - Valencia"
+    "Seat 1: Front Left",
+    "Seat 2: Front Right",
+    "Seat 3: Middle Left",
+    "Seat 4: Middle Right",
+    "Seat 5: Back Left",
+    "Seat 6: Back Right"
 ];
 
 const mainTextStyle = { color: "#555", fontStyle: "italic" };
@@ -59,16 +55,13 @@ const Footer = () => (
                 <div className="col-md-4 mb-4">
                     <h5 style={headingStyle}>GAMA EXPRESS S.R.L.</h5>
                     <div style={{ color: "#d32f2f", fontSize: 16, margin: "16px 0 8px", fontStyle: "italic" }}>
-                        Via Volpiano 53, 10040 Leini (TO) Italy
+                        Prroji i Mjellmët , 10000 Pristina, Kosovo 
                     </div>
                     <div style={{ ...mainTextStyle, fontSize: 16 }}>
-                        Phone: <a href="tel:+38344100531" style={{ color: "#d32f2f", textDecoration: "none", fontStyle: "italic" }}>+1234567890</a>
+                        Phone: <a href="tel:+38344100531" style={{ color: "#d32f2f", textDecoration: "none", fontStyle: "italic" }}>+38344100531</a>
                     </div>
                     <div style={{ ...mainTextStyle, fontSize: 16 }}>
                         Email: <a href="mailto:info@gamaexpress.com" style={{ color: "#d32f2f", textDecoration: "none", fontStyle: "italic" }}>info@gamaexpress.com</a>
-                    </div>
-                    <div style={{ ...mainTextStyle, fontSize: 16, marginTop: 8 }}>
-                        VAT No.: IT12345678901
                     </div>
                 </div>
             </div>
