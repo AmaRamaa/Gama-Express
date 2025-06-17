@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../../../supaBase/supaBase";
 
 const ModelsList = () => {
@@ -134,6 +134,7 @@ const ModelsList = () => {
         <div
             style={{
                 display: "flex",
+                flexDirection: "column",
                 gap: "2rem",
                 background: "linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)",
                 minHeight: "80vh",
@@ -141,30 +142,10 @@ const ModelsList = () => {
                 fontFamily: "'Segoe UI', 'Roboto', 'Arial', sans-serif",
             }}
         >
-            {/* Left: Manufacturers List */}
-            <div
-                className="container py-4"
-                style={{
-                    minWidth: 320,
-                    maxWidth: 400,
-                    background: "#fff",
-                    borderRadius: 18,
-                    boxShadow: "0 4px 24px 0 rgba(60,80,120,0.10)",
-                    border: "1px solid #e3e8f0",
-                }}
-            >
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2
-                        className="mb-0"
-                        style={{
-                            fontSize: 22,
-                            letterSpacing: 1,
-                            color: "#2a3342",
-                            fontWeight: 700,
-                        }}
-                    >
-                        Manufacturers
-                    </h2>
+            {/* Filters Row */}
+            <div style={{ display: "flex", gap: "2rem", alignItems: "flex-end", marginBottom: "1rem" }}>
+                <div>
+                    <label style={{ fontWeight: 600, color: "#2a3342", marginBottom: 4, display: "block" }}>Manufacturer Filter</label>
                     <input
                         type="text"
                         className="form-control"
@@ -174,349 +155,426 @@ const ModelsList = () => {
                             border: "1px solid #cbd5e1",
                             fontSize: 15,
                             padding: "0.5rem 1rem",
+                            minWidth: 220,
                         }}
                         value={manufacturerFilter}
                         onChange={e => setManufacturerFilter(e.target.value)}
                     />
                 </div>
-                <div className="table-responsive" style={{ maxHeight: "60vh", overflowY: "auto" }}>
-                    <table className="table table-bordered align-middle bg-white shadow-sm" style={{ borderRadius: 12, overflow: "hidden" }}>
-                        <thead className="table-light">
-                            <tr>
-                                <th style={{ width: 48, background: "#f1f5fa", border: "none" }}>Logo</th>
-                                <th style={{ background: "#f1f5fa", border: "none" }}>Name</th>
-                                <th style={{ background: "#f1f5fa", border: "none" }}>ID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {manufacturers
-                                .filter(m => {
-                                    const f = manufacturerFilter || "";
-                                    return (
-                                        m.name?.toLowerCase().includes(f.toLowerCase()) ||
-                                        String(m.id).includes(f)
-                                    );
-                                })
-                                .map(manufacturer => (
-                                    <tr
-                                        key={manufacturer.id}
-                                        style={{
-                                            background:
-                                                selectedManufacturer === manufacturer.id
-                                                    ? "linear-gradient(90deg, #e0e7ef 0%, #f8fafc 100%)"
-                                                    : undefined,
-                                            cursor: "pointer",
-                                            transition: "background 0.2s",
-                                        }}
-                                        onClick={() => handleManufacturerClick(manufacturer.id)}
-                                    >
-                                        <td>
-                                            {manufacturer.image ? (
-                                                <img
-                                                    src={
-                                                        manufacturer.image.startsWith("/")
-                                                            ? manufacturer.image
-                                                            : "/arc/assets/img/" + manufacturer.image
-                                                    }
-                                                    alt={manufacturer.name}
-                                                    style={{
-                                                        width: 40,
-                                                        height: 40,
-                                                        objectFit: "contain",
-                                                        background: "#f8f8f8",
-                                                        borderRadius: 8,
-                                                        border: "1px solid #e3e8f0",
-                                                        boxShadow: "0 1px 4px 0 rgba(60,80,120,0.08)",
-                                                    }}
-                                                    onError={e => (e.target.style.display = "none")}
-                                                />
-                                            ) : (
-                                                <span className="text-muted">N/A</span>
-                                            )}
-                                        </td>
-                                        <td className="fw-semibold" style={{ fontWeight: 600, color: "#334155" }}>
-                                            {manufacturer.name}
-                                        </td>
-                                        <td style={{ color: "#64748b" }}>{manufacturer.id}</td>
-                                    </tr>
-                                ))}
-                        </tbody>
-                    </table>
+                <div>
+                    <label style={{ fontWeight: 600, color: "#2a3342", marginBottom: 4, display: "block" }}>Model Filter</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Filter models by name, code, or ID..."
+                        style={{
+                            borderRadius: 8,
+                            border: "1px solid #cbd5e1",
+                            fontSize: 15,
+                            padding: "0.5rem 1rem",
+                            minWidth: 220,
+                        }}
+                        value={modelFilter}
+                        onChange={e => setModelFilter(e.target.value)}
+                        disabled={!selectedManufacturer}
+                    />
                 </div>
             </div>
-            <div
-                style={{
-                    flex: 1,
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                    background: "#fff",
-                    borderRadius: 18,
-                    boxShadow: "0 4px 24px 0 rgba(60,80,120,0.10)",
-                    border: "1px solid #e3e8f0",
-                    padding: "2rem",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                }}
-            >
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h2
-                        style={{
-                            fontSize: 22,
-                            letterSpacing: 1,
-                            color: "#2a3342",
-                            fontWeight: 700,
-                        }}
-                    >
-                        {selectedManufacturer
-                            ? manufacturers.find(m => m.id === selectedManufacturer)?.name + " Models"
-                            : "Models"}
-                    </h2>
+            {/* Main Content Row */}
+            <div style={{ display: "flex", gap: "2rem" }}>
+                {/* Manufacturers List */}
+                <div
+                    className="container py-4"
+                    style={{
+                        minWidth: 320,
+                        maxWidth: 400,
+                        background: "#fff",
+                        borderRadius: 18,
+                        boxShadow: "0 4px 24px 0 rgba(60,80,120,0.10)",
+                        border: "1px solid #e3e8f0",
+                        height: "fit-content",
+                    }}
+                >
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h2
+                            className="mb-0"
+                            style={{
+                                fontSize: 22,
+                                letterSpacing: 1,
+                                color: "#2a3342",
+                                fontWeight: 700,
+                            }}
+                        >
+                            Manufacturers
+                        </h2>
+                    </div>
+                    <div className="table-responsive" style={{ maxHeight: "60vh", overflowY: "auto" }}>
+                        <table className="table table-bordered align-middle bg-white shadow-sm" style={{ borderRadius: 12, overflow: "hidden" }}>
+                            <thead className="table-light">
+                                <tr>
+                                    <th style={{ width: 48, background: "#f1f5fa", border: "none" }}>Logo</th>
+                                    <th style={{ background: "#f1f5fa", border: "none" }}>Name</th>
+                                    <th style={{ background: "#f1f5fa", border: "none" }}>ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {manufacturers
+                                    .filter(m => {
+                                        const f = manufacturerFilter || "";
+                                        return (
+                                            m.name?.toLowerCase().includes(f.toLowerCase()) ||
+                                            String(m.id).includes(f)
+                                        );
+                                    })
+                                    .map(manufacturer => (
+                                        <tr
+                                            key={manufacturer.id}
+                                            style={{
+                                                background:
+                                                    selectedManufacturer === manufacturer.id
+                                                        ? "linear-gradient(90deg, #e0e7ef 0%, #f8fafc 100%)"
+                                                        : undefined,
+                                                cursor: "pointer",
+                                                transition: "background 0.2s",
+                                            }}
+                                            onClick={() => handleManufacturerClick(manufacturer.id)}
+                                        >
+                                            <td>
+                                                {manufacturer.image ? (
+                                                    <img
+                                                        src={
+                                                            manufacturer.image.startsWith("/")
+                                                                ? manufacturer.image
+                                                                : "/arc/assets/img/" + manufacturer.image
+                                                        }
+                                                        alt={manufacturer.name}
+                                                        style={{
+                                                            width: 40,
+                                                            height: 40,
+                                                            objectFit: "contain",
+                                                            background: "#f8f8f8",
+                                                            borderRadius: 8,
+                                                            border: "1px solid #e3e8f0",
+                                                            boxShadow: "0 1px 4px 0 rgba(60,80,120,0.08)",
+                                                        }}
+                                                        onError={e => (e.target.style.display = "none")}
+                                                    />
+                                                ) : (
+                                                    <span className="text-muted">N/A</span>
+                                                )}
+                                            </td>
+                                            <td className="fw-semibold" style={{ fontWeight: 600, color: "#334155" }}>
+                                                {manufacturer.name}
+                                            </td>
+                                            <td style={{ color: "#64748b" }}>{manufacturer.id}</td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {/* Models List */}
+                <div
+                    style={{
+                        flex: 1,
+                        maxHeight: "80vh",
+                        overflowY: "auto",
+                        background: "#fff",
+                        borderRadius: 18,
+                        boxShadow: "0 4px 24px 0 rgba(60,80,120,0.10)",
+                        border: "1px solid #e3e8f0",
+                        padding: "2rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                    }}
+                >
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h2
+                            style={{
+                                fontSize: 22,
+                                letterSpacing: 1,
+                                color: "#2a3342",
+                                fontWeight: 700,
+                            }}
+                        >
+                            {selectedManufacturer
+                                ? manufacturers.find(m => m.id === selectedManufacturer)?.name + " Models"
+                                : "Models"}
+                        </h2>
+                    </div>
                     {selectedManufacturer ? (
-                        <>
-                            <div className="mb-3" style={{ maxWidth: 320 }}>
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Filter models by name, code, or ID..."
-                                    style={{
-                                        borderRadius: 8,
-                                        border: "1px solid #cbd5e1",
-                                        fontSize: 15,
-                                        padding: "0.5rem 1rem",
-                                    }}
-                                    value={modelFilter}
-                                    onChange={e => setModelFilter(e.target.value)}
-                                    display="inline-block"
-                                />
-                            </div>
-                            <table
-                                style={{
-                                    width: "100%",
-                                    borderCollapse: "separate",
-                                    borderSpacing: 0,
-                                    borderRadius: 12,
-                                    overflow: "hidden",
-                                    boxShadow: "0 1px 8px 0 rgba(60,80,120,0.06)",
-                                }}
-                            >
-                                <thead>
-                                    <tr>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            Model Name
-                                        </th>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            Code
-                                        </th>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            Variant
-                                        </th>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            Start Year
-                                        </th>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            End Year
-                                        </th>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            Image
-                                        </th>
-                                        <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {manufacturers
-                                        .find(m => m.id === selectedManufacturer)
-                                        ?.models.filter(model => {
-                                            const f = modelFilter.toLowerCase();
-                                            return (
-                                                model.name?.toLowerCase().includes(f) ||
-                                                model.code?.toLowerCase().includes(f) ||
-                                                model.variant?.toLowerCase().includes(f) ||
-                                                String(model.id).includes(f)
-                                            );
-                                        })
-                                        .map(model =>
-                                            editingModelId === model.id ? (
-                                                <tr key={model.id}>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <input
-                                                            name="model"
-                                                            value={editForm.model}
-                                                            onChange={handleEditChange}
+                        <table
+                            style={{
+                                width: "100%",
+                                borderCollapse: "separate",
+                                borderSpacing: 0,
+                                borderRadius: 12,
+                                overflow: "hidden",
+                                boxShadow: "0 1px 8px 0 rgba(60,80,120,0.06)",
+                            }}
+                        >
+                            <thead>
+                                <tr>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        Model Name
+                                    </th>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        Code
+                                    </th>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        Variant
+                                    </th>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        Start Year
+                                    </th>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        End Year
+                                    </th>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        Image
+                                    </th>
+                                    <th style={{ background: "#f1f5fa", padding: "0.75rem", border: "none", fontWeight: 700 }}>
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {manufacturers
+                                    .find(m => m.id === selectedManufacturer)
+                                    ?.models.filter(model => {
+                                        const f = modelFilter.toLowerCase();
+                                        return (
+                                            model.name?.toLowerCase().includes(f) ||
+                                            model.code?.toLowerCase().includes(f) ||
+                                            model.variant?.toLowerCase().includes(f) ||
+                                            String(model.id).includes(f)
+                                        );
+                                    })
+                                    .map(model =>
+                                        editingModelId === model.id ? (
+                                            <tr key={model.id}>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <input
+                                                        name="model"
+                                                        value={editForm.model}
+                                                        onChange={handleEditChange}
+                                                        style={{
+                                                            borderRadius: 6,
+                                                            border: "1px solid #cbd5e1",
+                                                            padding: "0.25rem 0.5rem",
+                                                            width: "100%",
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <input
+                                                        name="code"
+                                                        value={editForm.code}
+                                                        onChange={handleEditChange}
+                                                        style={{
+                                                            borderRadius: 6,
+                                                            border: "1px solid #cbd5e1",
+                                                            padding: "0.25rem 0.5rem",
+                                                            width: "100%",
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <input
+                                                        name="variant"
+                                                        value={editForm.variant}
+                                                        onChange={handleEditChange}
+                                                        style={{
+                                                            borderRadius: 6,
+                                                            border: "1px solid #cbd5e1",
+                                                            padding: "0.25rem 0.5rem",
+                                                            width: "100%",
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <input
+                                                        name="start_year"
+                                                        value={editForm.start_year}
+                                                        onChange={handleEditChange}
+                                                        type="number"
+                                                        style={{
+                                                            borderRadius: 6,
+                                                            border: "1px solid #cbd5e1",
+                                                            padding: "0.25rem 0.5rem",
+                                                            width: "100%",
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <input
+                                                        name="end_year"
+                                                        value={editForm.end_year}
+                                                        onChange={handleEditChange}
+                                                        type="number"
+                                                        style={{
+                                                            borderRadius: 6,
+                                                            border: "1px solid #cbd5e1",
+                                                            padding: "0.25rem 0.5rem",
+                                                            width: "100%",
+                                                        }}
+                                                    />
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <input
+                                                        name="image_path"
+                                                        value={editForm.image_path}
+                                                        onChange={handleEditChange}
+                                                        placeholder="Image path or upload below"
+                                                        style={{
+                                                            borderRadius: 6,
+                                                            border: "1px solid #cbd5e1",
+                                                            padding: "0.25rem 0.5rem",
+                                                            width: "100%",
+                                                            marginBottom: 6,
+                                                        }}
+                                                    />
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files[0];
+                                                            if (!file) return;
+                                                            // Upload logic from ModelsCreate
+                                                            const fileName = `${Date.now()}_${file.name}`;
+                                                            const { error: uploadError } = await supabase.storage
+                                                                .from("model-images")
+                                                                .upload(fileName, file);
+                                                            if (uploadError) {
+                                                                alert("Failed to upload image.");
+                                                                return;
+                                                            }
+                                                            // Set the new image path in the form
+                                                            setEditForm((prev) => ({
+                                                                ...prev,
+                                                                image_path: `model-images/${fileName}`,
+                                                            }));
+                                                        }}
+                                                        style={{ width: "100%" }}
+                                                    />
+                                                    {editForm.image_path && (
+                                                        <img
+                                                            src={
+                                                                editForm.image_path.startsWith("/")
+                                                                    ? editForm.image_path
+                                                                    : "/arc/assets/img/" + editForm.image_path.replace(/^assets[\\/]/, "")
+                                                            }
+                                                            alt="Preview"
                                                             style={{
+                                                                width: 40,
+                                                                height: 30,
+                                                                objectFit: "cover",
                                                                 borderRadius: 6,
-                                                                border: "1px solid #cbd5e1",
-                                                                padding: "0.25rem 0.5rem",
-                                                                width: "100%",
+                                                                border: "1px solid #e3e8f0",
+                                                                background: "#f8fafc",
+                                                                marginTop: 6,
                                                             }}
+                                                            onError={e => (e.target.style.display = "none")}
                                                         />
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <input
-                                                            name="code"
-                                                            value={editForm.code}
-                                                            onChange={handleEditChange}
+                                                    )}
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <button
+                                                        onClick={() => handleEditSave(model.id)}
+                                                        style={{
+                                                            background: "#2563eb",
+                                                            color: "#fff",
+                                                            border: "none",
+                                                            borderRadius: 6,
+                                                            padding: "0.25rem 0.75rem",
+                                                            fontWeight: 600,
+                                                            marginRight: 4,
+                                                            cursor: "pointer",
+                                                            boxShadow: "0 1px 4px 0 rgba(60,80,120,0.08)",
+                                                        }}
+                                                    >
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        onClick={handleEditCancel}
+                                                        style={{
+                                                            background: "#f1f5fa",
+                                                            color: "#64748b",
+                                                            border: "1px solid #cbd5e1",
+                                                            borderRadius: 6,
+                                                            padding: "0.25rem 0.75rem",
+                                                            fontWeight: 600,
+                                                            cursor: "pointer",
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            <tr key={model.id} style={{ transition: "background 0.2s" }}>
+                                                <td style={{ padding: "0.5rem", fontWeight: 500, color: "#334155" }}>
+                                                    {model.name}
+                                                </td>
+                                                <td style={{ padding: "0.5rem", color: "#64748b" }}>
+                                                    {model.code || ""}
+                                                </td>
+                                                <td style={{ padding: "0.5rem", color: "#64748b" }}>
+                                                    {model.variant || ""}
+                                                </td>
+                                                <td style={{ padding: "0.5rem", color: "#64748b" }}>
+                                                    {model.start_year || ""}
+                                                </td>
+                                                <td style={{ padding: "0.5rem", color: "#64748b" }}>
+                                                    {model.end_year || ""}
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    {model.image ? (
+                                                        <img
+                                                            src={
+                                                                model.image.startsWith("/")
+                                                                    ? model.image
+                                                                    : "/arc/assets/img/" +
+                                                                    model.image.replace(/^assets[\\/]/, "")
+                                                            }
+                                                            alt={model.name}
                                                             style={{
+                                                                width: 40,
+                                                                height: 30,
+                                                                objectFit: "cover",
                                                                 borderRadius: 6,
-                                                                border: "1px solid #cbd5e1",
-                                                                padding: "0.25rem 0.5rem",
-                                                                width: "100%",
+                                                                border: "1px solid #e3e8f0",
+                                                                background: "#f8fafc",
                                                             }}
+                                                            onError={e => (e.target.style.display = "none")}
                                                         />
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <input
-                                                            name="variant"
-                                                            value={editForm.variant}
-                                                            onChange={handleEditChange}
-                                                            style={{
-                                                                borderRadius: 6,
-                                                                border: "1px solid #cbd5e1",
-                                                                padding: "0.25rem 0.5rem",
-                                                                width: "100%",
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <input
-                                                            name="start_year"
-                                                            value={editForm.start_year}
-                                                            onChange={handleEditChange}
-                                                            type="number"
-                                                            style={{
-                                                                borderRadius: 6,
-                                                                border: "1px solid #cbd5e1",
-                                                                padding: "0.25rem 0.5rem",
-                                                                width: "100%",
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <input
-                                                            name="end_year"
-                                                            value={editForm.end_year}
-                                                            onChange={handleEditChange}
-                                                            type="number"
-                                                            style={{
-                                                                borderRadius: 6,
-                                                                border: "1px solid #cbd5e1",
-                                                                padding: "0.25rem 0.5rem",
-                                                                width: "100%",
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <input
-                                                            name="image_path"
-                                                            value={editForm.image_path}
-                                                            onChange={handleEditChange}
-                                                            style={{
-                                                                borderRadius: 6,
-                                                                border: "1px solid #cbd5e1",
-                                                                padding: "0.25rem 0.5rem",
-                                                                width: "100%",
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <button
-                                                            onClick={() => handleEditSave(model.id)}
-                                                            style={{
-                                                                background: "#2563eb",
-                                                                color: "#fff",
-                                                                border: "none",
-                                                                borderRadius: 6,
-                                                                padding: "0.25rem 0.75rem",
-                                                                fontWeight: 600,
-                                                                marginRight: 4,
-                                                                cursor: "pointer",
-                                                                boxShadow: "0 1px 4px 0 rgba(60,80,120,0.08)",
-                                                            }}
-                                                        >
-                                                            Save
-                                                        </button>
-                                                        <button
-                                                            onClick={handleEditCancel}
-                                                            style={{
-                                                                background: "#f1f5fa",
-                                                                color: "#64748b",
-                                                                border: "1px solid #cbd5e1",
-                                                                borderRadius: 6,
-                                                                padding: "0.25rem 0.75rem",
-                                                                fontWeight: 600,
-                                                                cursor: "pointer",
-                                                            }}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ) : (
-                                                <tr key={model.id} style={{ transition: "background 0.2s" }}>
-                                                    <td style={{ padding: "0.5rem", fontWeight: 500, color: "#334155" }}>
-                                                        {model.name}
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem", color: "#64748b" }}>
-                                                        {model.code || ""}
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem", color: "#64748b" }}>
-                                                        {model.variant || ""}
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem", color: "#64748b" }}>
-                                                        {model.start_year || ""}
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem", color: "#64748b" }}>
-                                                        {model.end_year || ""}
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        {model.image ? (
-                                                            <img
-                                                                src={
-                                                                    model.image.startsWith("/")
-                                                                        ? model.image
-                                                                        : "/arc/assets/img/" +
-                                                                        model.image.replace(/^assets[\\/]/, "")
-                                                                }
-                                                                alt={model.name}
-                                                                style={{
-                                                                    width: 40,
-                                                                    height: 30,
-                                                                    objectFit: "cover",
-                                                                    borderRadius: 6,
-                                                                    border: "1px solid #e3e8f0",
-                                                                    background: "#f8fafc",
-                                                                }}
-                                                                onError={e => (e.target.style.display = "none")}
-                                                            />
-                                                        ) : (
-                                                            <span className="text-muted">N/A</span>
-                                                        )}
-                                                    </td>
-                                                    <td style={{ padding: "0.5rem" }}>
-                                                        <button
-                                                            onClick={() => handleEditClick(model)}
-                                                            style={{
-                                                                background: "#f1f5fa",
-                                                                color: "#2563eb",
-                                                                border: "1px solid #3b82f6",
-                                                                borderRadius: 6,
-                                                                padding: "0.25rem 0.75rem",
-                                                                fontWeight: 600,
-                                                                cursor: "pointer",
-                                                                transition: "background 0.2s, color 0.2s",
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                </tbody>
-                            </table>
-                        </>
+                                                    ) : (
+                                                        <span className="text-muted">N/A</span>
+                                                    )}
+                                                </td>
+                                                <td style={{ padding: "0.5rem" }}>
+                                                    <button
+                                                        onClick={() => handleEditClick(model)}
+                                                        style={{
+                                                            background: "#f1f5fa",
+                                                            color: "#2563eb",
+                                                            border: "1px solid #3b82f6",
+                                                            borderRadius: 6,
+                                                            padding: "0.25rem 0.75rem",
+                                                            fontWeight: 600,
+                                                            cursor: "pointer",
+                                                            transition: "background 0.2s, color 0.2s",
+                                                        }}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        )
+                                    )}
+                            </tbody>
+                        </table>
                     ) : (
                         <p
                             style={{

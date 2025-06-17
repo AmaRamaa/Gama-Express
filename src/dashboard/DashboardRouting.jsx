@@ -4,10 +4,15 @@ import Sidebar from './components/SideBar/Sidebar.jsx';
 import Header from './components/Header/Header';
 import './Style.css';
 import { FaHome, FaCog, FaUser, FaSignOutAlt } from 'react-icons/fa';
+
 import ManufacturesList from './pages/Manufacture/ManufactureList';
 import ManufacturesCreate from './pages/Manufacture/ManufactureCreate';
 import ModelsList from './pages/Models/ModelsList';
 import ModelsCreate from './pages/Models/ModelsCreate';
+import PartsList from './pages/Parts/PartsList';
+import PartsCreate from './pages/Parts/PartsCreate';
+import ProfilesList from './pages/Profiles/ProfilesList'; 
+import ProfilesCreate from './pages/Profiles/ProfilesCreate';
 
 const DashboardHome = React.lazy(() => import('./pages/Home/DashboardHome'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
@@ -30,15 +35,15 @@ const TABS = [
 ];
 
 const TAB_COMPONENTS = {
-    home: (props) => <DashboardHome {...props} TABS />,
-    'manufacture-list': () => <ManufacturesList />,
-    'manufacture-create': () => <ManufacturesCreate />,
-    'models-list':  () => <ModelsList />,
-    'models-create': () => <ModelsCreate />,
-    'parts-list': NotFound,
-    'parts-create': NotFound,
-    'profiles-list': NotFound,
-    'profiles-create': NotFound,
+    home: (props) => <DashboardHome {...props} TABS /> || NotFound,
+    'manufacture-list': () => <ManufacturesList /> || NotFound,
+    'manufacture-create': () => <ManufacturesCreate /> || NotFound,
+    'models-list':  () => <ModelsList /> || NotFound,
+    'models-create': () => <ModelsCreate /> || NotFound,
+    'parts-list': () => <PartsList /> || NotFound,
+    'parts-create':  () => <PartsCreate /> || NotFound,
+    'profiles-list':  () => <ProfilesList /> || NotFound,
+    'profiles-create':  () => <ProfilesCreate /> || NotFound,
     'profile-view': NotFound,
     'profile-edit': NotFound,
     'settings-general': NotFound,
@@ -186,5 +191,3 @@ const openTab = (tabId) => {
     </div>
   );
 };
-
-export default DashboardRouting;

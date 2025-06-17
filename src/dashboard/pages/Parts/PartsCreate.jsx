@@ -1,7 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { supabase } from "../../../supaBase/supaBase";
 
-// For CSV parsing
+// CSV columns for template and parsing
+const CSV_FORMAT = [
+    "Description",
+    "Model",
+    "Car",
+    "OEM",
+    "AM",
+    "img",
+    "start_year",
+    "end_year",
+    "Variant",
+    "Category",
+    "Subcategory",
+    "Code"
+];
+
+// Simple CSV parser (assumes no commas in values)
 function parseCSV(text) {
     const lines = text.trim().split("\n");
     const headers = lines[0].split(",").map(h => h.trim());
@@ -15,28 +31,20 @@ function parseCSV(text) {
 
 const IMAGE_BASE = "/arc/assets/img/";
 
-const CSV_FORMAT = [
-    "model",
-    "search_code",
-    "start_year",
-    "end_year",
-    "variant",
-    "code",
-    "image_path"
-];
-
-export default function ModelsCreate() {
-    const [manufacturers, setManufacturers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [selectedManufacturer, setSelectedManufacturer] = useState(null);
+export default function PartsCreate() {
     const [form, setForm] = useState({
-        model: "",
-        search_code: "",
+        Description: "",
+        Model: "",
+        Car: "",
+        OEM: "",
+        AM: "",
+        img: "",
         start_year: "",
         end_year: "",
-        variant: "",
-        code: "",
-        image_path: "",
+        Variant: "",
+        Category: "",
+        Subcategory: "",
+        Code: "",
         imageFile: null,
     });
     const [uploading, setUploading] = useState(false);
@@ -45,18 +53,6 @@ export default function ModelsCreate() {
     const [csvMode, setCsvMode] = useState(false);
     const [csvFile, setCsvFile] = useState(null);
     const [csvResult, setCsvResult] = useState(null);
-
-    useEffect(() => {
-        const fetchManufacturers = async () => {
-            setLoading(true);
-            const { data, error } = await supabase
-                .from("Manufacturers")
-                .select("id, manufacturer, image_path");
-            if (!error) setManufacturers(data || []);
-            setLoading(false);
-        };
-        fetchManufacturers();
-    }, []);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -69,9 +65,7 @@ export default function ModelsCreate() {
         setForm((prev) => ({
             ...prev,
             imageFile: file,
-            image_path: file
-                ? (file.name.startsWith("/") ? file.name : "/arc/assets/img/" + file.name)
-                : "",
+            img: file ? "" : prev.img,
         }));
         setError("");
         setSuccess(false);
@@ -81,14 +75,14 @@ export default function ModelsCreate() {
         e.preventDefault();
         setUploading(true);
 
-        let imagePath = form.image_path;
+        let imgPath = form.img;
 
         // Upload image if present
         if (form.imageFile) {
             const file = form.imageFile;
             const fileName = `${Date.now()}_${file.name}`;
             const { error: uploadError } = await supabase.storage
-                .from("model-images")
+                .from("part-images")
                 .upload(fileName, file);
 
             if (uploadError) {
@@ -96,48 +90,52 @@ export default function ModelsCreate() {
                 setUploading(false);
                 return;
             }
-            imagePath = `model-images/${fileName}`;
+            imgPath = `part-images/${fileName}`;
         }
 
-        // Validate required fields
-        if (
-            !form.model ||
-            !form.start_year ||
-            !form.code ||
-            !imagePath
-        ) {
-            setError("All fields are required.");
+        // Validate required fields (add more as needed)
+        if (!form.Description || !form.Model || !imgPath) {
+            setError("Description, Model, and Image are required.");
             setUploading(false);
             return;
         }
 
+        const payload = {
+            Description: form.Description,
+            Model: form.Model,
+            Car: form.Car,
+            OEM: form.OEM,
+            AM: form.AM,
+            img: imgPath,
+            start_year: form.start_year === "" ? null : Number(form.start_year),
+            end_year: form.end_year === "" ? null : Number(form.end_year),
+            Variant: form.Variant,
+            Category: form.Category,
+            Subcategory: form.Subcategory,
+            Code: form.Code,
+        };
+
         const { error: insertError } = await supabase
-            .from("Models")
-            .insert([
-                {
-                    manufacturer: selectedManufacturer.manufacturer,
-                    model: form.model,
-                    search_code: form.search_code || null,
-                    start_year: Number(form.start_year),
-                    end_year: Number(form.end_year),
-                    variant: form.variant,
-                    code: form.code,
-                    image_path: imagePath,
-                },
-            ]);
+            .from("Parts")
+            .insert([payload]);
 
         if (insertError) {
-            setError("Failed to create model.");
+            setError("Failed to create part.");
         } else {
             setSuccess(true);
             setForm({
-                model: "",
-                search_code: "",
+                Description: "",
+                Model: "",
+                Car: "",
+                OEM: "",
+                AM: "",
+                img: "",
                 start_year: "",
                 end_year: "",
-                variant: "",
-                code: "",
-                image_path: "",
+                Variant: "",
+                Category: "",
+                Subcategory: "",
+                Code: "",
                 imageFile: null,
             });
         }
@@ -175,21 +173,25 @@ export default function ModelsCreate() {
                 }
                 // Prepare data for insert
                 const insertRows = rows.map(row => ({
-                    manufacturer: selectedManufacturer.manufacturer,
-                    model: row.model,
-                    search_code: row.search_code || null,
-                    start_year: Number(row.start_year),
-                    end_year: Number(row.end_year),
-                    variant: row.variant,
-                    code: row.code,
-                    image_path: row.image_path,
+                    Description: row.Description,
+                    Model: row.Model,
+                    Car: row.Car,
+                    OEM: row.OEM,
+                    AM: row.AM,
+                    img: row.img,
+                    start_year: row.start_year === "" ? null : Number(row.start_year),
+                    end_year: row.end_year === "" ? null : Number(row.end_year),
+                    Variant: row.Variant,
+                    Category: row.Category,
+                    Subcategory: row.Subcategory,
+                    Code: row.Code,
                 }));
-                const { error: insertError, data } = await supabase
-                    .from("Models")
+                const { error: insertError } = await supabase
+                    .from("Parts")
                     .insert(insertRows);
 
                 if (insertError) {
-                    setError("Failed to insert some or all models.");
+                    setError("Failed to insert some or all parts.");
                     setCsvResult(null);
                 } else {
                     setSuccess(true);
@@ -206,23 +208,21 @@ export default function ModelsCreate() {
 
     const downloadCsvTemplate = () => {
         const header = CSV_FORMAT.join(",");
-        const example = "A4,SC123,2000,2005,Base,1234,/arc/assets/img/audi_a4.png";
+        const example = "Spoiler,Model X,Car X,OEM123,AM456,/arc/assets/img/spoiler.png,2010,2015,Base,Body,Exterior,SPX-001";
         const csv = `${header}\n${example}`;
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "models_template.csv";
+        a.download = "parts_template.csv";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
 
-    if (loading) return <div>Loading manufacturers...</div>;
-
     return (
-        <div style={{ maxWidth: 480, margin: "0 auto", padding: 24 }}>
+        <div style={{ maxWidth: 520, margin: "0 auto", padding: 24 }}>
             <div style={{ marginBottom: 18 }}>
                 <label style={{ fontWeight: 600, marginRight: 12 }}>
                     <input
@@ -232,7 +232,6 @@ export default function ModelsCreate() {
                             setCsvMode(e.target.checked);
                             setSuccess(false);
                             setError("");
-                            // Reset only CSV-related state when switching modes
                             setCsvFile(null);
                             setCsvResult(null);
                         }}
@@ -241,7 +240,7 @@ export default function ModelsCreate() {
                     Upload CSV/Excel
                 </label>
             </div>
-            {/* Single Model Form */}
+            {/* Single Part Form */}
             {!csvMode && (
                 <form
                     onSubmit={handleSubmit}
@@ -252,7 +251,7 @@ export default function ModelsCreate() {
                         border: "1px solid #e3e8f0",
                         padding: "2.5rem 2rem 2rem 2rem",
                         minWidth: 340,
-                        maxWidth: 420,
+                        maxWidth: 480,
                         width: "100%",
                         margin: "0 auto"
                     }}
@@ -267,53 +266,16 @@ export default function ModelsCreate() {
                             textAlign: "center",
                         }}
                     >
-                        Create Model
+                        Create Part
                     </h2>
-                    {/* Manufacturer select */}
-                    <div style={{ marginBottom: 18 }}>
-                        <label
-                            style={{
-                                fontWeight: 600,
-                                marginBottom: 6,
-                                display: "block",
-                                color: "#334155",
-                            }}
-                        >
-                            Manufacturer *
-                        </label>
-                        <select
-                            name="manufacturer"
-                            value={selectedManufacturer ? selectedManufacturer.id : ""}
-                            onChange={(e) => {
-                                const selected = manufacturers.find(m => m.id === Number(e.target.value));
-                                setSelectedManufacturer(selected || null);
-                            }}
-                            required
-                            style={{
-                                borderRadius: 8,
-                                border: "1px solid #cbd5e1",
-                                fontSize: 15,
-                                padding: "0.5rem 1rem",
-                                width: "100%",
-                                background: "#f8fafc",
-                            }}
-                        >
-                            <option value="">Select manufacturer</option>
-                            {manufacturers.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                    {m.manufacturer}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
                     <div style={{ marginBottom: 18 }}>
                         <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
-                            Model *
+                            Description *
                         </label>
                         <input
                             type="text"
-                            name="model"
-                            value={form.model}
+                            name="Description"
+                            value={form.Description}
                             onChange={handleChange}
                             required
                             style={{
@@ -328,12 +290,32 @@ export default function ModelsCreate() {
                     </div>
                     <div style={{ marginBottom: 18 }}>
                         <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
-                            Search Code
+                            Model *
                         </label>
                         <input
                             type="text"
-                            name="search_code"
-                            value={form.search_code}
+                            name="Model"
+                            value={form.Model}
+                            onChange={handleChange}
+                            required
+                            style={{
+                                borderRadius: 8,
+                                border: "1px solid #cbd5e1",
+                                fontSize: 15,
+                                padding: "0.5rem 1rem",
+                                width: "100%",
+                                background: "#f8fafc",
+                            }}
+                        />
+                    </div>
+                    <div style={{ marginBottom: 18 }}>
+                        <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                            Car
+                        </label>
+                        <input
+                            type="text"
+                            name="Car"
+                            value={form.Car}
                             onChange={handleChange}
                             style={{
                                 borderRadius: 8,
@@ -348,14 +330,77 @@ export default function ModelsCreate() {
                     <div style={{ marginBottom: 18, display: "flex", gap: 12 }}>
                         <div style={{ flex: 1 }}>
                             <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
-                                Start Year *
+                                OEM
+                            </label>
+                            <input
+                                type="text"
+                                name="OEM"
+                                value={form.OEM}
+                                onChange={handleChange}
+                                style={{
+                                    borderRadius: 8,
+                                    border: "1px solid #cbd5e1",
+                                    fontSize: 15,
+                                    padding: "0.5rem 1rem",
+                                    width: "100%",
+                                    background: "#f8fafc",
+                                }}
+                            />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                                AM
+                            </label>
+                            <input
+                                type="text"
+                                name="AM"
+                                value={form.AM}
+                                onChange={handleChange}
+                                style={{
+                                    borderRadius: 8,
+                                    border: "1px solid #cbd5e1",
+                                    fontSize: 15,
+                                    padding: "0.5rem 1rem",
+                                    width: "100%",
+                                    background: "#f8fafc",
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <div style={{ marginBottom: 18 }}>
+                        <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                            Image *
+                        </label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            required={!form.img}
+                            style={{
+                                borderRadius: 8,
+                                border: "1px solid #cbd5e1",
+                                fontSize: 15,
+                                padding: "0.5rem 1rem",
+                                width: "100%",
+                                background: "#f8fafc",
+                            }}
+                        />
+                        {form.imageFile && (
+                            <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
+                                Selected: {form.imageFile.name}
+                            </div>
+                        )}
+                    </div>
+                    <div style={{ marginBottom: 18, display: "flex", gap: 12 }}>
+                        <div style={{ flex: 1 }}>
+                            <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                                Start Year
                             </label>
                             <input
                                 type="number"
                                 name="start_year"
                                 value={form.start_year}
                                 onChange={handleChange}
-                                required
                                 style={{
                                     borderRadius: 8,
                                     border: "1px solid #cbd5e1",
@@ -392,8 +437,8 @@ export default function ModelsCreate() {
                         </label>
                         <input
                             type="text"
-                            name="variant"
-                            value={form.variant}
+                            name="Variant"
+                            value={form.Variant}
                             onChange={handleChange}
                             style={{
                                 borderRadius: 8,
@@ -407,14 +452,13 @@ export default function ModelsCreate() {
                     </div>
                     <div style={{ marginBottom: 18 }}>
                         <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
-                            Code *
+                            Category
                         </label>
                         <input
                             type="text"
-                            name="code"
-                            value={form.code}
+                            name="Category"
+                            value={form.Category}
                             onChange={handleChange}
-                            required
                             style={{
                                 borderRadius: 8,
                                 border: "1px solid #cbd5e1",
@@ -427,12 +471,13 @@ export default function ModelsCreate() {
                     </div>
                     <div style={{ marginBottom: 18 }}>
                         <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
-                            Image
+                            Subcategory
                         </label>
                         <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
+                            type="text"
+                            name="Subcategory"
+                            value={form.Subcategory}
+                            onChange={handleChange}
                             style={{
                                 borderRadius: 8,
                                 border: "1px solid #cbd5e1",
@@ -442,11 +487,25 @@ export default function ModelsCreate() {
                                 background: "#f8fafc",
                             }}
                         />
-                        {form.imageFile && (
-                            <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>
-                                Selected: {form.imageFile.name}
-                            </div>
-                        )}
+                    </div>
+                    <div style={{ marginBottom: 18 }}>
+                        <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                            Code
+                        </label>
+                        <input
+                            type="text"
+                            name="Code"
+                            value={form.Code}
+                            onChange={handleChange}
+                            style={{
+                                borderRadius: 8,
+                                border: "1px solid #cbd5e1",
+                                fontSize: 15,
+                                padding: "0.5rem 1rem",
+                                width: "100%",
+                                background: "#f8fafc",
+                            }}
+                        />
                     </div>
                     {error && (
                         <div
@@ -477,7 +536,7 @@ export default function ModelsCreate() {
                                 textAlign: "center",
                             }}
                         >
-                            Model created successfully!
+                            Part created successfully!
                         </div>
                     )}
                     <button
@@ -499,11 +558,11 @@ export default function ModelsCreate() {
                             marginTop: 12,
                         }}
                     >
-                        {uploading ? "Saving..." : "Create Model"}
+                        {uploading ? "Saving..." : "Create Part"}
                     </button>
                 </form>
             )}
-            {/* CSV Upload UI */}
+            {/* CSV Upload Form */}
             {csvMode && (
                 <div
                     style={{
@@ -513,7 +572,7 @@ export default function ModelsCreate() {
                         border: "1px solid #e3e8f0",
                         padding: "2.5rem 2rem 2rem 2rem",
                         minWidth: 340,
-                        maxWidth: 420,
+                        maxWidth: 480,
                         width: "100%",
                         margin: "0 auto"
                     }}
@@ -528,179 +587,69 @@ export default function ModelsCreate() {
                             textAlign: "center",
                         }}
                     >
-                        {selectedManufacturer
-                            ? `Upload CSV for ${selectedManufacturer.manufacturer}`
-                            : "Upload CSV"}
+                        Upload Parts CSV
                     </h2>
-                    {!selectedManufacturer ? (
-                        <div style={{ marginBottom: 22 }}>
-                            <label
-                                style={{
-                                    fontWeight: 600,
-                                    marginBottom: 6,
-                                    display: "block",
-                                    color: "#334155",
-                                }}
-                            >
-                                Manufacturer *
-                            </label>
-                            <select
-                                name="manufacturer"
-                                value={form.manufacturer || ""}
-                                onChange={(e) => {
-                                    const selected = manufacturers.find(m => m.id === Number(e.target.value));
-                                    setSelectedManufacturer(selected || null);
-                                    setForm({ ...form, manufacturer: e.target.value });
-                                }}
-                                required
-                                style={{
-                                    borderRadius: 8,
-                                    border: "1px solid #cbd5e1",
-                                    fontSize: 15,
-                                    padding: "0.5rem 1rem",
-                                    width: "100%",
-                                    background: "#f8fafc",
-                                }}
-                            >
-                                <option value="">Select manufacturer</option>
-                                {manufacturers.map((m) => (
-                                    <option key={m.id} value={m.id}>
-                                        {m.manufacturer}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    ) : (
-                        <>
-                            <div
-                                style={{
-                                    marginBottom: 24,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    gap: 12,
-                                }}
-                            >
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-primary"
-                                    onClick={downloadCsvTemplate}
-                                    style={{
-                                        background: "#f1f5f9",
-                                        color: "#2563eb",
-                                        border: "1px solid #2563eb",
-                                        borderRadius: 8,
-                                        padding: "0.5rem 1.2rem",
-                                        fontWeight: 600,
-                                        fontSize: 15,
-                                        cursor: "pointer",
-                                        marginBottom: 0,
-                                        transition: "background 0.2s, color 0.2s",
-                                    }}
-                                >
-                                    Download CSV Format
-                                </button>
-                                <label
-                                    htmlFor="csv-upload"
-                                    style={{
-                                        display: "block",
-                                        width: "100%",
-                                        background: "#f8fafc",
-                                        border: "1px dashed #cbd5e1",
-                                        borderRadius: 8,
-                                        padding: "1.2rem 1rem",
-                                        textAlign: "center",
-                                        color: "#64748b",
-                                        fontWeight: 500,
-                                        fontSize: 15,
-                                        cursor: "pointer",
-                                        marginBottom: 0,
-                                    }}
-                                >
-                                    {csvFile ? (
-                                        <>
-                                            <span style={{ color: "#2563eb", fontWeight: 600 }}>
-                                                {csvFile.name}
-                                            </span>
-                                            <span
-                                                style={{
-                                                    marginLeft: 12,
-                                                    color: "#ef4444",
-                                                    cursor: "pointer",
-                                                    fontWeight: 700,
-                                                }}
-                                                onClick={e => {
-                                                    e.stopPropagation();
-                                                    setCsvFile(null);
-                                                }}
-                                            >
-                                                &times;
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span style={{ fontSize: 18, marginRight: 8 }}>📄</span>
-                                            Click to select CSV file
-                                        </>
-                                    )}
-                                    <input
-                                        id="csv-upload"
-                                        type="file"
-                                        accept=".csv"
-                                        onChange={handleCsvFile}
-                                        style={{ display: "none" }}
-                                    />
-                                </label>
-                                <div style={{
-                                    fontSize: 13,
-                                    color: "#64748b",
-                                    marginTop: 4,
-                                    marginBottom: 0,
-                                    textAlign: "center"
-                                }}>
-                                    Only .csv files. Use the template for correct columns.
-                                </div>
-                            </div>
+                    <div style={{ marginBottom: 18 }}>
+                        <label style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>
+                            CSV File
+                        </label>
+                        <input
+                            type="file"
+                            accept=".csv"
+                            onChange={handleCsvFile}
+                            style={{
+                                borderRadius: 8,
+                                border: "1px solid #cbd5e1",
+                                fontSize: 15,
+                                padding: "0.5rem 1rem",
+                                width: "100%",
+                                background: "#f8fafc",
+                            }}
+                        />
+                    </div>
+                    <div style={{ marginBottom: 18, display: "flex", gap: 12 }}>
+                        <div style={{ flex: 1 }}>
                             <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={handleCsvUpload}
-                                disabled={uploading || !csvFile}
+                                onClick={downloadCsvTemplate}
                                 style={{
                                     width: "100%",
-                                    background: uploading || !csvFile ? "#a5b4fc" : "#2563eb",
+                                    background: "#e0f2fe",
+                                    color: "#0c4b33",
+                                    border: "1px solid #0c4b33",
+                                    borderRadius: 8,
+                                    padding: "0.75rem",
+                                    fontWeight: 700,
+                                    fontSize: 16,
+                                    cursor: "pointer",
+                                    transition: "background 0.2s",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                Download CSV Template
+                            </button>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <button
+                                onClick={handleCsvUpload}
+                                disabled={uploading}
+                                style={{
+                                    width: "100%",
+                                    background: uploading ? "#a5b4fc" : "#2563eb",
                                     color: "#fff",
                                     border: "none",
                                     borderRadius: 8,
                                     padding: "0.75rem",
                                     fontWeight: 700,
                                     fontSize: 16,
-                                    boxShadow: "0 1px 4px 0 rgba(60,80,120,0.08)",
-                                    transition: "background 0.2s",
-                                    cursor: uploading || !csvFile ? "not-allowed" : "pointer",
-                                    marginBottom: 8,
+                                    cursor: uploading ? "not-allowed" : "pointer",
                                 }}
                             >
                                 {uploading ? "Uploading..." : "Upload CSV"}
                             </button>
-                            {csvResult && (
-                                <div
-                                    style={{
-                                        background: "#d1fae5",
-                                        color: "#047857",
-                                        borderRadius: 8,
-                                        padding: "0.5rem 1rem",
-                                        marginTop: 16,
-                                        fontWeight: 500,
-                                        fontSize: 15,
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    {csvResult.count} models created successfully!
-                                </div>
-                            )}
-                        </>
-                    )}
+                        </div>
+                    </div>
                     {error && (
                         <div
                             style={{
@@ -708,7 +657,7 @@ export default function ModelsCreate() {
                                 color: "#b91c1c",
                                 borderRadius: 8,
                                 padding: "0.5rem 1rem",
-                                marginTop: 16,
+                                marginTop: 8,
                                 fontWeight: 500,
                                 fontSize: 15,
                                 textAlign: "center",
@@ -717,43 +666,20 @@ export default function ModelsCreate() {
                             {error}
                         </div>
                     )}
-                    {success && !csvResult && (
+                    {success && csvResult && (
                         <div
                             style={{
                                 background: "#d1fae5",
                                 color: "#047857",
                                 borderRadius: 8,
                                 padding: "0.5rem 1rem",
-                                marginTop: 16,
+                                marginTop: 8,
                                 fontWeight: 500,
                                 fontSize: 15,
                                 textAlign: "center",
                             }}
                         >
-                            Models created successfully!
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setSelectedManufacturer(null);
-                                    setCsvFile(null);
-                                    setSuccess(false);
-                                    setError("");
-                                }}
-                                style={{
-                                    width: "100%",
-                                    marginTop: 12,
-                                    background: "#f3f4f6",
-                                    color: "#222",
-                                    border: "none",
-                                    borderRadius: 8,
-                                    padding: "0.75rem",
-                                    fontWeight: 700,
-                                    fontSize: 16,
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Back to Manufacturers
-                            </button>
+                            Successfully uploaded {csvResult.count} parts!
                         </div>
                     )}
                 </div>
