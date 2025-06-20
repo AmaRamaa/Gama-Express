@@ -320,37 +320,40 @@ const Models = () => {
                                 acc[key].push(curr);
                                 return acc;
                             }, {})
-                        ).map(([brandName, brandModels], idx) => (
-                            <li key={idx} style={{ padding: 0, marginBottom: '8px' }}>
-                                <div
-                                    style={{
-                                        padding: '10px 20px',
-                                        cursor: 'pointer',
-                                        background: brandName === manufacturer ? headerRedLight : 'transparent',
-                                        color: brandName === manufacturer ? headerRed : '#333',
-                                        fontWeight: brandName === manufacturer ? 700 : 400,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                    }}
-                                    onClick={() => handleBrandClick(brandModels[0])}
-                                >
-                                    {brandModels[0].image_path && (
-                                        <img
-                                            src={brandModels[0].image_path}
-                                            alt={brandName}
-                                            style={{
-                                                width: '30px',
-                                                height: '30px',
-                                                objectFit: 'contain',
-                                                marginRight: '10px',
-                                                verticalAlign: 'middle',
-                                            }}
-                                        />
-                                    )}
-                                    <span>{brandName}</span>
-                                </div>
-                            </li>
-                        ))}
+                        )
+                            // Sort manufacturers alphabetically by brandName
+                            .sort(([a], [b]) => a.localeCompare(b))
+                            .map(([brandName, brandModels], idx) => (
+                                <li key={idx} style={{ padding: 0, marginBottom: '8px' }}>
+                                    <div
+                                        style={{
+                                            padding: '10px 20px',
+                                            cursor: 'pointer',
+                                            background: brandName === manufacturer ? headerRedLight : 'transparent',
+                                            color: brandName === manufacturer ? headerRed : '#333',
+                                            fontWeight: brandName === manufacturer ? 700 : 400,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                        }}
+                                        onClick={() => handleBrandClick(brandModels[0])}
+                                    >
+                                        {brandModels[0].image_path && (
+                                            <img
+                                                src={brandModels[0].image_path}
+                                                alt={brandName}
+                                                style={{
+                                                    width: '30px',
+                                                    height: '30px',
+                                                    objectFit: 'contain',
+                                                    marginRight: '10px',
+                                                    verticalAlign: 'middle',
+                                                }}
+                                            />
+                                        )}
+                                        <span>{brandName}</span>
+                                    </div>
+                                </li>
+                            ))}
                     </ul>
                 </div>
                 {/* Main Content */}
