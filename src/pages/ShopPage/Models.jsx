@@ -432,7 +432,12 @@ const Models = () => {
                                         {modelVariants[0].manufacturer}{" "}
                                         {modelName}
                                         {modelVariants.length > 1 && (
-                                            <span style={{ marginLeft: 8, fontSize: 12, color: '#888' }}>▼</span>
+                                            <span
+                                                className={`menu-icon${openDropdown === idx ? ' open' : ''}`}
+                                                style={{ marginLeft: 8, fontSize: 16, color: '#888' }}
+                                            >
+                                                ▼
+                                            </span>
                                         )}
                                     </span>
 
