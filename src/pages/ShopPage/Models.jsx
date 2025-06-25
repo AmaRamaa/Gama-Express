@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supaBase/supaBase';
 import './index.css'
+import ReactImageMagnify from 'react-image-magnify';
+import GamaLogo from '/assets/GamaExpressSmallLogo.png'; // Adjust path if needed
 
 // Example color variable
 const headerBlack = 'black';
@@ -69,47 +71,51 @@ const Models = () => {
         const fetchProducts = async () => {
             setLoading(true);
 
-            // Simple search: filter by manufacturer and selectedModel (case-insensitive)
-            // Find the selected model object to get its start_year and end_year
-            const selectedModelObj = models.find(
-                m => m.model === selectedModel
-            );
+            // Find the selected model object for year/variant info
+            let selectedModelObj = models.find(m => m.model === selectedModel);
+
+            // If not found, try to parse selectedModel for more details (model-start_year-end_year-variant)
+            if (!selectedModelObj && selectedModel) {
+                const parts = selectedModel.split('-');
+                selectedModelObj = models.find(m =>
+                    m.model === parts[0] &&
+                    (parts[1] ? String(m.start_year) === parts[1] : true) &&
+                    (parts[2] ? String(m.end_year) === parts[2] : true) &&
+                    (parts[3] ? String(m.variant) === parts[3] : true)
+                );
+            }
+
             let query = supabase
                 .from('Parts')
                 .select('*')
-                .ilike('Car', `%${manufacturer}%`)
-                .ilike('Car', `%${selectedModel}%`);
+                .ilike('Car', `%${manufacturer}%`);
 
-            // Filter by year range if available
-            // Ensure that the product's year range overlaps with the model's year range
-            if (selectedModelObj && selectedModelObj.start_year && selectedModelObj.end_year) {
+            // If start_year and end_year exist, filter for overlapping years
+            if (selectedModelObj?.start_year && selectedModelObj?.end_year) {
                 query = query
                     .lte('start_year', selectedModelObj.end_year)
                     .gte('end_year', selectedModelObj.start_year);
-            } else if (selectedModelObj && selectedModelObj.start_year) {
-                query = query.lte('start_year', selectedModelObj.start_year);
             }
-            // Fetch products from Supabase
+            // If variant is selected, filter by it
+            if (selectedModelObj?.variant) {
+                query = query.ilike('Variant', `%${selectedModelObj.variant}%`);
+            }
+
+            console.log('Selected Model Object:', selectedModelObj);
+            console.log('Selected Model:', selectedModel);
+            if (selectedModelObj?.Variant) {
+                query = query.ilike('Variant', `%${selectedModelObj.Variant}%`);
+            }
+
+            // If year range is available, filter for overlapping years
+            if (selectedModelObj?.start_year && selectedModelObj?.end_year) {
+                query = query
+                    .lte('start_year', selectedModelObj.end_year)
+                    .gte('end_year', selectedModelObj.start_year);
+            }
+
             const { data, error } = await query;
 
-            // Filter products to only include those whose year range overlaps with the selected model's year range
-            let filteredData = data;
-            if (selectedModelObj && selectedModelObj.start_year && selectedModelObj.end_year && Array.isArray(data)) {
-                filteredData = data.filter(product => {
-                    // Product's year range
-                    const prodStart = Number(product.start_year) || Number(product.year_start) || Number(product.startYear);
-                    const prodEnd = Number(product.end_year) || Number(product.year_end) || Number(product.endYear);
-                    // Model's year range
-                    const modelStart = Number(selectedModelObj.start_year);
-                    const modelEnd = Number(selectedModelObj.end_year);
-
-                    // If any year is missing, include by default
-                    if (!prodStart || !prodEnd || !modelStart || !modelEnd) return true;
-
-                    // Check if ranges overlap
-                    return prodStart <= modelEnd && prodEnd >= modelStart;
-                });
-            }
             if (error) {
                 console.error('Error fetching products:', error);
                 setProducts([]);
@@ -151,9 +157,9 @@ const Models = () => {
 
     // Filter products based on search query
     const filteredProducts = products.filter(product =>
-        product.Car?.toLowerCase().includes(searchQuery) ||
+        (product.Car?.toLowerCase().includes(searchQuery) ||
         product.AM?.toLowerCase().includes(searchQuery) ||
-        product.OEM?.toLowerCase().includes(searchQuery)
+        product.OEM?.toLowerCase().includes(searchQuery))
     );
 
     // If there is a search query and no manufacturer, show filtered products
@@ -175,7 +181,7 @@ const Models = () => {
                                 className="products-grid container"
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: 'repeat(5, 1fr)',
+                                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                                     gap: '24px',
                                     justifyItems: 'center',
                                     background: '#fff',
@@ -188,24 +194,61 @@ const Models = () => {
                                     <div
                                         key={idx}
                                         style={{
-                                            width: '100%',
-                                            padding: '16px 0',
-                                            background: '#fff',
-                                            border: `1px solid ${headerRed}`,
-                                            borderRadius: '8px',
-                                            color: headerRed,
-                                            fontWeight: 600,
-                                            fontSize: '15px',
-                                            textAlign: 'center',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            minHeight: '140px',
-                                            cursor: 'pointer',
+                                            background: "#fff",
+                                            borderRadius: 8,
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                                            width: 200,
+                                            minWidth: 200,
+                                            textAlign: "center",
+                                            textDecoration: "none",
+                                            color: "#222",
+                                            padding: 16,
+                                            transition: "box-shadow 0.2s",
+                                            cursor: "pointer"
+                                        }}
+                                        onClick={() => {
+                                            if (product.AM) {
+                                                localStorage.setItem('selectedProductAM', product.AM);
+                                            }
+                                            navigate(
+                                                `/catalog/${encodeURIComponent(product.Car || manufacturer)}/${encodeURIComponent(product.Model)}/${encodeURIComponent(product.AM)}`,
+                                                { replace: false }
+                                            );
                                         }}
                                     >
-                                        <span>{product.Description || product.text || product.Model}</span>
+                                        <div style={{ position: 'relative', width: 120, height: 80, margin: '0 auto 12px auto' }}>
+                                            <img
+                                                src={product.img || '/assets/CARPLACEHOLDER.png'}
+                                                alt={product.Description || product.Model}
+                                                style={{
+                                                    width: 120,
+                                                    height: 80,
+                                                    objectFit: 'contain',
+                                                    borderRadius: 8,
+                                                    border: '1px solid #eee',
+                                                    background: '#fafafa'
+                                                }}
+                                                draggable={false}
+                                            />
+                                            <img
+                                                src={GamaLogo}
+                                                alt="Gama Express Branding"
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    left: '50%',
+                                                    width: 60,
+                                                    height: 60,
+                                                    opacity: 0.25,
+                                                    transform: 'translate(-50%, -50%)',
+                                                    pointerEvents: 'none',
+                                                    userSelect: 'none',
+                                                }}
+                                                draggable={false}
+                                            />
+                                        </div>
+                                        <div style={{ fontWeight: "bold", marginBottom: 4 }}>{product.Car}</div>
+                                        <div style={{ fontSize: 12, color: "#888" }}>Item: {product.AM}</div>
                                     </div>
                                 ))}
                             </div>
@@ -549,6 +592,105 @@ const Models = () => {
                     )}
                     {selectedModel && (
                         <>
+                            {/* --- Car Info Card at the top --- */}
+                            {(() => {
+                                // Try to find the selected model object (by parsing selectedModel if needed)
+                                let selectedModelObj = models.find(m => {
+                                    // Try exact match first
+                                    if (m.model === selectedModel) return true;
+                                    // Try parsing selectedModel (model-start_year-end_year-variant)
+                                    const parts = selectedModel.split('-');
+                                    return (
+                                        m.model === parts[0] &&
+                                        (parts[1] ? String(m.start_year) === parts[1] : true) &&
+                                        (parts[2] ? String(m.end_year) === parts[2] : true) &&
+                                        (parts[3] ? String(m.variant) === parts[3] : true)
+                                    );
+                                });
+
+                                if (!selectedModelObj) return null;
+
+                                return (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 32,
+                                            background: '#fff',
+                                            border: `1px solid ${headerRedLight}`,
+                                            borderRadius: 12,
+                                            padding: '24px 32px',
+                                            margin: '0 0 24px 0',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                                            maxWidth: 700,
+                                            marginLeft: 'auto',
+                                            marginRight: 'auto'
+                                        }}
+                                    >
+                                        <div style={{ position: 'relative', width: 120, height: 80 }}>
+                                            <ReactImageMagnify
+                                                {...{
+                                                    smallImage: {
+                                                        alt: selectedModelObj.model,
+                                                        isFluidWidth: true,
+                                                        src: selectedModelObj.image_path
+                                                            ? selectedModelObj.image_path.replace('src/assets', '/assets')
+                                                            : '/assets/CARPLACEHOLDER.png',
+                                                        width: 120,
+                                                        height: 80,
+                                                    },
+                                                    largeImage: {
+                                                        src: selectedModelObj.image_path
+                                                            ? selectedModelObj.image_path.replace('src/assets', '/assets')
+                                                            : '/assets/CARPLACEHOLDER.png',
+                                                        width: 600,
+                                                        height: 400,
+                                                    },
+                                                    enlargedImageContainerStyle: { zIndex: 2000 },
+                                                    enlargedImageStyle: { borderRadius: 8 },
+                                                    isHintEnabled: true,
+                                                    shouldUsePositiveSpaceLens: true,
+                                                    lensStyle: { backgroundColor: 'rgba(255,255,255,.3)' },
+                                                }}
+                                            />
+                                            {/* Gama Branding Overlay */}
+                                            <img
+                                                src={GamaLogo}
+                                                alt="Gama Express Branding"
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    left: '50%',
+                                                    width: 60,
+                                                    height: 60,
+                                                    opacity: 0.25,
+                                                    transform: 'translate(-50%, -50%)',
+                                                    pointerEvents: 'none',
+                                                    userSelect: 'none',
+                                                }}
+                                                draggable={false}
+                                            />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 700, fontSize: 22, color: headerRed, marginBottom: 6 }}>
+                                                {selectedModelObj.manufacturer} {selectedModelObj.model}
+                                                {selectedModelObj.variant ? ` (${selectedModelObj.variant})` : ''}
+                                            </div>
+                                            <div style={{ color: '#444', fontSize: 16, marginBottom: 2 }}>
+                                                {selectedModelObj.start_year
+                                                    ? `Years: ${selectedModelObj.start_year}${selectedModelObj.end_year ? ` - ${selectedModelObj.end_year}` : ''}`
+                                                    : null}
+                                            </div>
+                                            {selectedModelObj.code && (
+                                                <div style={{ color: '#888', fontSize: 15 }}>
+                                                    Code: <span style={{ color: '#222' }}>{selectedModelObj.code}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
                             <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
                                 Products for {manufacturer} {selectedModel}
                             </h3>
@@ -600,7 +742,37 @@ const Models = () => {
                                                     );
                                                 }}
                                             >
-                                                <img src={product.img} alt={product.Model} style={{ width: 120, height: 80, objectFit: "contain", marginBottom: 12 }} />
+                                                <div style={{ position: 'relative', width: 120, height: 80, margin: '0 auto 12px auto' }}>
+                                                    <img
+                                                        src={product.img || '/assets/CARPLACEHOLDER.png'}
+                                                        alt={product.Description || product.Model}
+                                                        style={{
+                                                            width: 120,
+                                                            height: 80,
+                                                            objectFit: 'contain',
+                                                            borderRadius: 8,
+                                                            border: '1px solid #eee',
+                                                            background: '#fafafa'
+                                                        }}
+                                                        draggable={false}
+                                                    />
+                                                    <img
+                                                        src={GamaLogo}
+                                                        alt="Gama Express Branding"
+                                                        style={{
+                                                            position: 'absolute',
+                                                            top: '50%',
+                                                            left: '50%',
+                                                            width: 60,
+                                                            height: 60,
+                                                            opacity: 0.25,
+                                                            transform: 'translate(-50%, -50%)',
+                                                            pointerEvents: 'none',
+                                                            userSelect: 'none',
+                                                        }}
+                                                        draggable={false}
+                                                    />
+                                                </div>
                                                 <div style={{ fontWeight: "bold", marginBottom: 4 }}>{product.Car}</div>
                                                 <div style={{ fontSize: 12, color: "#888" }}>Item: {product.AM}</div>
                                             </div>

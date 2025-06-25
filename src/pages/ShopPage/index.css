@@ -6,3 +6,17 @@
 .menu-icon.open {
   transform: rotate(180deg);
 }
+.glass-badge {
+    background: rgba(255, 255, 255, 0.18);
+    color: #222;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 2px 8px rgba(30,30,30,0.08);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border-radius: 18px;
+    font-weight: 500;
+    transition: box-shadow 0.2s;
+}
+.glass-badge.bg-primary { color: #fff; background: rgba(52, 120, 246, 0.25); }
+.glass-badge.bg-info { color: #fff; background: rgba(0, 184, 212, 0.22); }
+.glass-badge.bg-success { color: #fff; background: rgba(40, 199, 111, 0.22); }
