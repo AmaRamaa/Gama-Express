@@ -4,6 +4,10 @@ import { supabase } from '../../supaBase/supaBase';
 import './index.css'
 import ReactImageMagnify from 'react-image-magnify';
 import GamaLogo from '/assets/GamaExpressSmallLogo.png'; // Adjust path if needed
+import Loader from '../../components/Loader';
+import ModelInfoCard from '../../components/ModelInfoCard';
+import ProductCard from '../../components/ProductCard';
+import BrandCard from '../../components/BrandCard';
 
 // Example color variable
 const headerBlack = 'black';
@@ -170,7 +174,7 @@ const Models = () => {
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
                         Search Results
                     </h3>
-                    {loading && <div>Loading...</div>}
+                    {loading && <Loader />}
                     {!loading && (
                         filteredProducts.length === 0 ? (
                             <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
@@ -288,7 +292,7 @@ const Models = () => {
     //                 <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
     //                     All Parts for {manufacturer}
     //                 </h3>
-    //                 {loading && <div>Loading...</div>}
+    //                 {loading && <Loader />}
     //                 {!loading && (
     //                     products.length === 0 ? (
     //                         <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
@@ -368,33 +372,11 @@ const Models = () => {
                             .sort(([a], [b]) => a.localeCompare(b))
                             .map(([brandName, brandModels], idx) => (
                                 <li key={idx} style={{ padding: 0, marginBottom: '8px' }}>
-                                    <div
-                                        style={{
-                                            padding: '10px 20px',
-                                            cursor: 'pointer',
-                                            background: brandName === manufacturer ? headerRedLight : 'transparent',
-                                            color: brandName === manufacturer ? headerRed : '#333',
-                                            fontWeight: brandName === manufacturer ? 700 : 400,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                        }}
+                                    <BrandCard
+                                        brand={brandModels[0]}
+                                        selected={brandName === manufacturer}
                                         onClick={() => handleBrandClick(brandModels[0])}
-                                    >
-                                        {brandModels[0].image_path && (
-                                            <img
-                                                src={brandModels[0].image_path}
-                                                alt={brandName}
-                                                style={{
-                                                    width: '30px',
-                                                    height: '30px',
-                                                    objectFit: 'contain',
-                                                    marginRight: '10px',
-                                                    verticalAlign: 'middle',
-                                                }}
-                                            />
-                                        )}
-                                        <span>{brandName}</span>
-                                    </div>
+                                    />
                                 </li>
                             ))}
                     </ul>
@@ -404,7 +386,7 @@ const Models = () => {
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
                         Models for {manufacturer}
                     </h3>
-                    {loading && !selectedModel && <div>Loading...</div>}
+                    {loading && !selectedModel && <Loader />}
                     {!loading && !selectedModel && (
                         <div
                             className="models-grid container"
@@ -590,197 +572,72 @@ const Models = () => {
 
                         </div>
                     )}
-                    {selectedModel && (
-                        <>
-                            {/* --- Car Info Card at the top --- */}
-                            {(() => {
-                                // Try to find the selected model object (by parsing selectedModel if needed)
-                                let selectedModelObj = models.find(m => {
-                                    // Try exact match first
-                                    if (m.model === selectedModel) return true;
-                                    // Try parsing selectedModel (model-start_year-end_year-variant)
-                                    const parts = selectedModel.split('-');
-                                    return (
-                                        m.model === parts[0] &&
-                                        (parts[1] ? String(m.start_year) === parts[1] : true) &&
-                                        (parts[2] ? String(m.end_year) === parts[2] : true) &&
-                                        (parts[3] ? String(m.variant) === parts[3] : true)
-                                    );
-                                });
+                    {selectedModel && (() => {
+                        let selectedModelObj = models.find(m => {
+                            if (m.model === selectedModel) return true;
+                            const parts = selectedModel.split('-');
+                            return (
+                                m.model === parts[0] &&
+                                (parts[1] ? String(m.start_year) === parts[1] : true) &&
+                                (parts[2] ? String(m.end_year) === parts[2] : true) &&
+                                (parts[3] ? String(m.variant) === parts[3] : true)
+                            );
+                        });
+                        if (!selectedModelObj) return null;
+                        return (
+                            <ModelInfoCard
+                                image={selectedModelObj.image_path ? selectedModelObj.image_path.replace('src/assets', '/assets') : '/assets/CARPLACEHOLDER.png'}
+                                title={`${selectedModelObj.manufacturer} ${selectedModelObj.model}${selectedModelObj.variant ? ` (${selectedModelObj.variant})` : ''}`}
+                                description={selectedModelObj.description || ''}
+                                specs={[
+                                    selectedModelObj.start_year ? { label: 'Years', value: selectedModelObj.end_year ? `${selectedModelObj.start_year} - ${selectedModelObj.end_year}` : `${selectedModelObj.start_year}` } : null,
+                                    selectedModelObj.code ? { label: 'Code', value: selectedModelObj.code } : null,
+                                ].filter(Boolean)}
+                                style={{ maxWidth: 700, margin: '0 auto 24px auto', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: `1px solid ${headerRedLight}` }}
+                            />
+                        );
+                    })()}
 
-                                if (!selectedModelObj) return null;
-
-                                return (
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 32,
-                                            background: '#fff',
-                                            border: `1px solid ${headerRedLight}`,
-                                            borderRadius: 12,
-                                            padding: '24px 32px',
-                                            margin: '0 0 24px 0',
-                                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                            maxWidth: 700,
-                                            marginLeft: 'auto',
-                                            marginRight: 'auto'
-                                        }}
-                                    >
-                                        <div style={{ position: 'relative', width: 120, height: 80 }}>
-                                            <ReactImageMagnify
-                                                {...{
-                                                    smallImage: {
-                                                        alt: selectedModelObj.model,
-                                                        isFluidWidth: true,
-                                                        src: selectedModelObj.image_path
-                                                            ? selectedModelObj.image_path.replace('src/assets', '/assets')
-                                                            : '/assets/CARPLACEHOLDER.png',
-                                                        width: 120,
-                                                        height: 80,
-                                                    },
-                                                    largeImage: {
-                                                        src: selectedModelObj.image_path
-                                                            ? selectedModelObj.image_path.replace('src/assets', '/assets')
-                                                            : '/assets/CARPLACEHOLDER.png',
-                                                        width: 600,
-                                                        height: 400,
-                                                    },
-                                                    enlargedImageContainerStyle: { zIndex: 2000 },
-                                                    enlargedImageStyle: { borderRadius: 8 },
-                                                    isHintEnabled: true,
-                                                    shouldUsePositiveSpaceLens: true,
-                                                    lensStyle: { backgroundColor: 'rgba(255,255,255,.3)' },
-                                                }}
-                                            />
-                                            {/* Gama Branding Overlay */}
-                                            <img
-                                                src={GamaLogo}
-                                                alt="Gama Express Branding"
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: '50%',
-                                                    left: '50%',
-                                                    width: 60,
-                                                    height: 60,
-                                                    opacity: 0.25,
-                                                    transform: 'translate(-50%, -50%)',
-                                                    pointerEvents: 'none',
-                                                    userSelect: 'none',
-                                                }}
-                                                draggable={false}
-                                            />
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 700, fontSize: 22, color: headerRed, marginBottom: 6 }}>
-                                                {selectedModelObj.manufacturer} {selectedModelObj.model}
-                                                {selectedModelObj.variant ? ` (${selectedModelObj.variant})` : ''}
-                                            </div>
-                                            <div style={{ color: '#444', fontSize: 16, marginBottom: 2 }}>
-                                                {selectedModelObj.start_year
-                                                    ? `Years: ${selectedModelObj.start_year}${selectedModelObj.end_year ? ` - ${selectedModelObj.end_year}` : ''}`
-                                                    : null}
-                                            </div>
-                                            {selectedModelObj.code && (
-                                                <div style={{ color: '#888', fontSize: 15 }}>
-                                                    Code: <span style={{ color: '#222' }}>{selectedModelObj.code}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })()}
-
-                            <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
-                                Products for {manufacturer} {selectedModel}
-                            </h3>
-                            {loading && <div>Loading...</div>}
-                            {!loading && (
-                                <div
-                                    className="products-grid container"
-                                    style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(5, 1fr)',
-                                        gap: '24px',
-                                        justifyItems: 'center',
-                                        background: '#fff',
-                                        border: `1px solid ${headerRed}`,
-                                        borderRadius: '0 0 8px 8px',
-                                        padding: '24px 0',
-                                    }}
-                                >
-                                    {filteredProducts.length === 0 ? (
-                                        <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#888', fontSize: '18px' }}>
-                                            No parts found for this model.
-                                        </div>
-                                    ) : (
-                                        filteredProducts.map((product, idx) => (
-                                            <div
-                                                key={idx}
-                                                style={{
-                                                    background: "#fff",
-                                                    borderRadius: 8,
-                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                                                    width: 200,
-                                                    minWidth: 200,
-                                                    textAlign: "center",
-                                                    textDecoration: "none",
-                                                    color: "#222",
-                                                    padding: 16,
-                                                    transition: "box-shadow 0.2s",
-                                                    cursor: "pointer"
-                                                }}
-                                                onClick={() => {
-                                                    // Save AM code to localStorage
-                                                    if (product.AM) {
-                                                        localStorage.setItem('selectedProductAM', product.AM);
-                                                    }
-                                                    // Navigate to ProductDetails page
-                                                    navigate(
-                                                        `/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(selectedModel)}/${encodeURIComponent(product.AM)}`,
-                                                        { replace: false }
-                                                    );
-                                                }}
-                                            >
-                                                <div style={{ position: 'relative', width: 120, height: 80, margin: '0 auto 12px auto' }}>
-                                                    <img
-                                                        src={product.img || '/assets/CARPLACEHOLDER.png'}
-                                                        alt={product.Description || product.Model}
-                                                        style={{
-                                                            width: 120,
-                                                            height: 80,
-                                                            objectFit: 'contain',
-                                                            borderRadius: 8,
-                                                            border: '1px solid #eee',
-                                                            background: '#fafafa'
-                                                        }}
-                                                        draggable={false}
-                                                    />
-                                                    <img
-                                                        src={GamaLogo}
-                                                        alt="Gama Express Branding"
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: '50%',
-                                                            left: '50%',
-                                                            width: 60,
-                                                            height: 60,
-                                                            opacity: 0.25,
-                                                            transform: 'translate(-50%, -50%)',
-                                                            pointerEvents: 'none',
-                                                            userSelect: 'none',
-                                                        }}
-                                                        draggable={false}
-                                                    />
-                                                </div>
-                                                <div style={{ fontWeight: "bold", marginBottom: 4 }}>{product.Car}</div>
-                                                <div style={{ fontSize: 12, color: "#888" }}>Item: {product.AM}</div>
-                                            </div>
-                                        ))
-                                    )}
+                    <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
+                        Products for {manufacturer} {selectedModel}
+                    </h3>
+                    {loading && <Loader />}
+                    {!loading && (
+                        <div
+                            className="products-grid container"
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(5, 1fr)',
+                                gap: '24px',
+                                justifyItems: 'center',
+                                background: '#fff',
+                                border: `1px solid ${headerRed}`,
+                                borderRadius: '0 0 8px 8px',
+                                padding: '24px 0',
+                            }}
+                        >
+                            {filteredProducts.length === 0 ? (
+                                <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#888', fontSize: '18px' }}>
+                                    No parts found for this model.
                                 </div>
+                            ) : (
+                                filteredProducts.map((product, idx) => (
+                                    <ProductCard
+                                        key={product.id || idx}
+                                        product={product}
+                                        onClick={() => {
+                                            if (product.AM) {
+                                                localStorage.setItem('selectedProductAM', product.AM);
+                                            }
+                                            navigate(
+                                                `/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(selectedModel)}/${encodeURIComponent(product.AM)}`,
+                                                { replace: false }
+                                            );
+                                        }}
+                                    />
+                                ))
                             )}
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

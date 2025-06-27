@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../supaBase/supaBase";
+import Loader from '../../components/Loader';
 
 const profileStyles = {
     container: {
@@ -79,7 +80,7 @@ const Profile = () => {
     if (loading)
         return (
             <div style={profileStyles.container}>
-            <div>Loading...</div> 
+            <Loader /> 
             </div>
         );
     if (!profile)

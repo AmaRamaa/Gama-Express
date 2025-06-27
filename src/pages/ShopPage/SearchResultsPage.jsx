@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import Loader from '../../components/Loader';
 
 const SearchResultsPage = ({ loading, filteredProducts, headerRed, manufacturer, selectedModel }) => {
     const navigate = useNavigate();
@@ -10,7 +11,7 @@ const SearchResultsPage = ({ loading, filteredProducts, headerRed, manufacturer,
                 <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
                     Search Results
                 </h3>
-                {loading && <div>Loading...</div>}
+                {loading && <Loader />}
                 {!loading && (
                     filteredProducts.length === 0 ? (
                         <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
