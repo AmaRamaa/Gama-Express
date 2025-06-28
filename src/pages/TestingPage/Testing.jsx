@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Input from '../../components/Input/Input'; // Adjust the import path as necessary
 
 const models = [
   {
@@ -35,15 +36,21 @@ export default function AudiCatalog() {
           </li>
         ))}
       </ul>
-      <img src="src/assets/Audi/file_111754_1646992949.jpg" alt="" />
-
+      <div style={{ margin: '20px 0' }}>
+        <Input
+          label="Search Models"
+          placeholder="Type to search..."
+          type="text"
+          onChange={() => {}}
+        />
+      </div>
       {hoveredModel && (
         <img
-          src={"src/assets/Audi/file_111754_1646992949.jpg"}
+          src={hoveredModel.image}
           alt={hoveredModel.name}
           style={{
             position: 'fixed',
-            top: mousePos.y + 15,  // offset a bit so not on top of cursor
+            top: mousePos.y + 15,
             left: mousePos.x + 15,
             width: '150px',
             height: 'auto',

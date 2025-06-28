@@ -13,6 +13,10 @@ import SearchResultsPage from "./pages/ShopPage/SearchResultsPage"
 import DashboardRouting from "./dashboard/DashboardRouting"
 import Auth from "./pages/Auth/Auth"
 import Profile from "./pages/Auth/Profile" 
+import Company from "./pages/Company/Company"
+import Contact from "./pages/Contacts/Contacts"
+import News from "./pages/News/News"
+import Legal from "./pages/Legal/Legal"
 
 function CatalogManufacturersWrapper() {
   const [manufacturers, setManufacturers] = useState([])
@@ -98,20 +102,33 @@ function App() {
           element={
             <>
               <Header />
-              <Breadcrumbs />
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/catalog" element={<CatalogManufacturersWrapper />} />
-                <Route path="/catalog/:manufacturer" element={<Models />} />
-                <Route path="/catalog/:manufacturer/:model" element={<Models />} />
                 <Route
-                  path="/catalog/:category/:subcategory/:product"
-                  element={<ProductDetails />}
+                  path="*"
+                  element={
+                    <>
+                      <Breadcrumbs />
+                      <Routes>
+                        <Route path="/catalog" element={<CatalogManufacturersWrapper />} />
+                        <Route path="/catalog/:manufacturer" element={<Models />} />
+                        <Route path="/catalog/:manufacturer/:model" element={<Models />} />
+                        <Route
+                          path="/catalog/:category/:subcategory/:product"
+                          element={<ProductDetails />}
+                        />
+                        <Route path="/News" element={<News />} />
+                        <Route path="/legal" element={<Legal />} />
+                        <Route path="/contacts" element={<Contact />} />
+                        <Route path="/company" element={<Company />} />
+                        <Route path="/testing" element={<Testing />} />
+                        <Route path="/Login" element={<Auth />} />
+                        <Route path="/profile" element={<Profile />} />
+                        {/* Dashboard routes without Header/Footer */}
+                      </Routes>
+                    </>
+                  }
                 />
-                <Route path="/testing" element={<Testing />} />
-                <Route path="/Login" element={<Auth />} />
-                <Route path="/profile" element={<Profile />} />
-                {/* Dashboard routes without Header/Footer */}
               </Routes>
               <Footer />
             </>

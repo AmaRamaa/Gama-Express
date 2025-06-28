@@ -53,15 +53,15 @@ const Footer = () => (
                 </div>
                 {/* Company Info */}
                 <div className="col-md-4 mb-4">
-                    <h5 style={headingStyle}>GAMA EXPRESS S.R.L.</h5>
+                    <h5 style={headingStyle}>GAMA EXPRESS SH.P.K</h5>
                     <div style={{ color: "#d32f2f", fontSize: 16, margin: "16px 0 8px", fontStyle: "italic" }}>
-                        Prroji i Mjellmët , 10000 Pristina, Kosovo 
+                        Prroi i Mjellmët , 10000 Pristina, Kosovo 
                     </div>
                     <div style={{ ...mainTextStyle, fontSize: 16 }}>
                         Phone: <a href="tel:+38344100531" style={{ color: "#d32f2f", textDecoration: "none", fontStyle: "italic" }}>+38344100531</a>
                     </div>
                     <div style={{ ...mainTextStyle, fontSize: 16 }}>
-                        Email: <a href="mailto:info@gamaexpress.com" style={{ color: "#d32f2f", textDecoration: "none", fontStyle: "italic" }}>info@gamaexpress.com</a>
+                        Email: <a href="mailto:gamaexpress18@gmail.com" style={{ color: "#d32f2f", textDecoration: "none", fontStyle: "italic" }}>gamaexpress18@gmail.com</a>
                     </div>
                 </div>
             </div>

@@ -7,6 +7,7 @@ import Loader from '../../components/Loader';
 import ProductCard from '../../components/ProductCard';
 import ViberLogo from '../../assets/ViberLogo.png';
 import WhatsAppLogo from '../../assets/WhatsAppLogo.png';
+import Pagination from "react-js-pagination";
 
 const FIELD_LABELS = {
     OEM: 'OEM',
@@ -19,27 +20,40 @@ const FIELD_LABELS = {
     Variant: 'Variant',
     Category: 'Category',
     Subcategory: 'Subcategory',
+    // Add lowercase keys for compatibility
+    oem: 'OEM',
+    am: 'AM',
+    description: 'Description',
+    model: 'Model',
+    car: 'Car',
+    variant: 'Variant',
+    category: 'Category',
+    subcategory: 'Subcategory',
 };
-
-
 
 const BUBBLE_FIELDS = [
     { key: 'Category', color: 'primary' },
     { key: 'Subcategory', color: 'info' },
     { key: 'Variant', color: 'success' },
+    // Add lowercase keys for compatibility
+    { key: 'category', color: 'primary' },
+    { key: 'subcategory', color: 'info' },
+    { key: 'variant', color: 'success' },
 ];
 
 const WHATSAPP_NUMBER = '+38344100531'; // Replace with your WhatsApp number
 const VIBER_NUMBER = '+38344100531';    // Replace with your Viber number
 
 const ProductDetails = () => {
-    const { category, subcategory, product } = useParams();
+    const { product } = useParams();
     const [part, setPart] = React.useState(null);
-
-    // Import logo images
     const [loading, setLoading] = React.useState(true);
     const [showAll, setShowAll] = React.useState(false);
     const [showModal, setShowModal] = React.useState(false);
+
+    // --- Add state for related products and pagination ---
+    const [relatedProducts, setRelatedProducts] = React.useState([]);
+    const [relatedLoading, setRelatedLoading] = React.useState(true);
 
     React.useEffect(() => {
         let isMounted = true;
@@ -55,6 +69,7 @@ const ProductDetails = () => {
                 console.error('Error fetching part:', error);
                 setLoading(false);
                 setPart(null);
+                setRelatedProducts([]); // Clear related products if part not found
                 return;
             }
             setPart(data);
@@ -65,6 +80,84 @@ const ProductDetails = () => {
             isMounted = false;
         };
     }, [product]);
+
+    // --- Use the pagination/filter hook for related products ---
+    const DEFAULT_PAGE_SIZE = 9;
+    function usePaginationAndFilter(initialData = []) {
+        const [page, setPage] = React.useState(1);
+        const [pageSize, setPageSize] = React.useState(DEFAULT_PAGE_SIZE);
+        const [filter, setFilter] = React.useState('');
+        const [data, setData] = React.useState(initialData);
+
+        // Filtering logic
+        const filteredData = React.useMemo(() => {
+            if (!filter) return data;
+            return data.filter(item =>
+                Object.values(item)
+                    .join(' ')
+                    .toLowerCase()
+                    .includes(filter.toLowerCase())
+            );
+        }, [data, filter]);
+
+        // Paginated data
+        const paginatedData = React.useMemo(() => {
+            const start = (page - 1) * pageSize;
+            return filteredData.slice(start, start + pageSize);
+        }, [filteredData, page, pageSize]);
+
+        // Reset page if filter changes
+        React.useEffect(() => {
+            setPage(1);
+        }, [filter, pageSize]);
+
+        return {
+            page,
+            setPage,
+            pageSize,
+            setPageSize,
+            filter,
+            setFilter,
+            paginatedData,
+            totalItems: filteredData.length,
+            setData,
+        };
+    }
+
+    const {
+        page: relatedPage,
+        setPage: setRelatedPage,
+        pageSize: relatedPageSize,
+        setPageSize: setRelatedPageSize,
+        filter: relatedFilter,
+        setFilter: setRelatedFilter,
+        paginatedData: paginatedRelatedProducts,
+        totalItems: relatedTotalItems,
+        setData: setRelatedData,
+    } = usePaginationAndFilter(relatedProducts);
+
+    React.useEffect(() => {
+        if (!part) return;
+        setRelatedLoading(true);
+        const fetchRelated = async () => {
+            const { data, error } = await supabase
+                .from('Parts')
+                .select('*')
+                .or(
+                    `Category.eq.${part.Category},Subcategory.eq.${part.Subcategory}`
+                )
+                .neq('AM', part.AM)
+                .limit(100);
+            if (error) {
+                setRelatedData([]);
+                setRelatedLoading(false);
+                return;
+            }
+            setRelatedData(data || []);
+            setRelatedLoading(false);
+        };
+        fetchRelated();
+    }, [part, setRelatedData]);
 
     if (loading) return <Loader />;
     if (!part) return <div className="alert alert-danger my-5 text-center">Part not found.</div>;
@@ -159,13 +252,13 @@ const ProductDetails = () => {
                         <div className="accordion-item">
                             <h2 className="accordion-header" id="headingAll">
                                 <button
-                                    className="accordion-button collapsed"
+                                    className={`accordion-button${showAll ? '' : ' collapsed'}`}
                                     type="button"
-                                    onClick={() => setShowAll(!showAll)}
+                                    onClick={() => setShowAll(prev => !prev)}
                                     aria-expanded={showAll}
                                     aria-controls="collapseAll"
                                 >
-                                    View All Details
+                                    {showAll ? 'Hide Details' : 'View All Details'}
                                 </button>
                             </h2>
                             <div
@@ -195,6 +288,72 @@ const ProductDetails = () => {
                             </div>
                         </div>
                     </div>
+                    {/* --- Related Products Section with Pagination --- */}
+                    <div className="mt-5">
+                        <h4 className="mb-3">Related Products</h4>
+                        <input
+                            type="text"
+                            className="form-control mb-3"
+                            placeholder="Filter related products..."
+                            value={relatedFilter}
+                            onChange={e => setRelatedFilter(e.target.value)}
+                            style={{ maxWidth: 300 }}
+                        />
+                        {relatedLoading ? (
+                            <Loader />
+                        ) : paginatedRelatedProducts.length === 0 ? (
+                            <div className="alert alert-warning">No related products found.</div>
+                        ) : (
+                            <>
+                                <div className="row g-4" style={{gap: '15px'}}> 
+                                    {paginatedRelatedProducts.map(prod => {
+                                        // Normalize keys to uppercase for ProductCard compatibility
+                                        const normalizedProd = {
+                                            ...prod,
+                                            AM: prod.AM || prod.am,
+                                            OEM: prod.OEM || prod.oem,
+                                            Description: prod.Description || prod.description,
+                                            Model: prod.Model || prod.model,
+                                            Car: prod.Car || prod.car,
+                                            Category: prod.Category || prod.category,
+                                            Subcategory: prod.Subcategory || prod.subcategory,
+                                            Variant: prod.Variant || prod.variant,
+                                        };
+                                        return (
+                                            <div
+                                                className="col-12 col-md-6 col-lg-4"
+                                                key={normalizedProd.id || prod.id || prod.AM}
+                                            >
+                                                <ProductCard
+                                                    product={normalizedProd}
+                                                    onClick={() => {
+                                                        if (normalizedProd.AM) {
+                                                            localStorage.setItem('selectedProductAM', normalizedProd.AM);
+                                                        }
+                                                        // Use manufacturer and selectedModel from the product if available
+                                                        const manufacturer = normalizedProd.Manufacturer || normalizedProd.manufacturer || normalizedProd.Car || normalizedProd.car || '';
+                                                        const selectedModel = normalizedProd.Model || normalizedProd.model || '';
+                                                        window.location.href = `/catalog/${encodeURIComponent(manufacturer)}/${encodeURIComponent(selectedModel)}/${encodeURIComponent(normalizedProd.AM)}`;
+                                                    }}
+                                                />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div className="d-flex justify-content-center mt-4">
+                                    <Pagination
+                                        activePage={relatedPage}
+                                        itemsCountPerPage={relatedPageSize}
+                                        totalItemsCount={relatedTotalItems}
+                                        pageRangeDisplayed={3}
+                                        onChange={setRelatedPage}
+                                        itemClass="page-item"
+                                        linkClass="page-link"
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,3 +361,11 @@ const ProductDetails = () => {
 };
 
 export default ProductDetails;
+
+// --- Show related products with same Category OR Subcategory (excluding current part) ---
+/*
+To show all related products with the same Category or Subcategory, 
+modify the fetchRelated function to use `.or()` for the filter.
+Replace the fetchRelated function inside the useEffect for related products:
+*/
+
