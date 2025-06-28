@@ -8,6 +8,8 @@ import Loader from '../../components/Loader';
 import ModelInfoCard from '../../components/ModelInfoCard';
 import ProductCard from '../../components/ProductCard';
 import BrandCard from '../../components/BrandCard';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 // Example color variable
 const headerBlack = 'black';
@@ -15,6 +17,7 @@ const headerRed = '#e53935'; // Material Red 600, or pick your preferred red
 const headerRedLight = '#ffeaea'; // or pick a light red that fits your theme
 
 const Models = () => {
+    const { t } = useTranslation();
     const { manufacturer, model } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -172,13 +175,13 @@ const Models = () => {
             <div className="container-fluid mt-5" style={{ maxWidth: '100vw', padding: 0, background: '#fff', borderRadius: '0 0 8px 8px' }}>
                 <div style={{ minHeight: '80vh' }}>
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
-                        Search Results
+                        {t('models.searchResults', 'Search Results')}
                     </h3>
                     {loading && <Loader />}
                     {!loading && (
                         filteredProducts.length === 0 ? (
                             <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
-                                No parts found for this search.
+                                {t('models.noPartsForSearch', 'No parts found for this search.')}
                             </div>
                         ) : (
                             <div
@@ -357,7 +360,7 @@ const Models = () => {
             <div style={{ display: 'flex', minHeight: '80vh' }}>
                 {/* Sidebar */}
                 <div style={{ borderRight: '1px solid #eaeaea', padding: '24px 0', background: '#f9f9f9', overflow: 'scroll', height: '720px' }}>
-                    <h5 style={{ color: headerRed, textAlign: 'center' }}>Brands</h5>
+                    <h5 style={{ color: headerRed, textAlign: 'center' }}>{t('models.brands', 'Brands')}</h5>
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                         {Object.entries(
                             manufacturers.reduce((acc, curr) => {
@@ -384,7 +387,7 @@ const Models = () => {
                 {/* Main Content */}
                 <div style={{ flex: 1 }}>
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
-                        Models for {manufacturer}
+                        {t('models.modelsFor', { manufacturer })}
                     </h3>
                     {loading && !selectedModel && <Loader />}
                     {!loading && !selectedModel && (
@@ -599,7 +602,7 @@ const Models = () => {
                     })()}
 
                     <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
-                        Products for {manufacturer} {selectedModel}
+                        {t('models.productsFor', { manufacturer, selectedModel })}
                     </h3>
                     {loading && <Loader />}
                     {!loading && (
@@ -618,7 +621,7 @@ const Models = () => {
                         >
                             {filteredProducts.length === 0 ? (
                                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: '#888', fontSize: '18px' }}>
-                                    No parts found for this model.
+                                    {t('models.noPartsForModel', 'No parts found for this model.')}
                                 </div>
                             ) : (
                                 filteredProducts.map((product, idx) => (

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 // Mock Facebook posts placeholder
 const MOCK_POSTS = [
@@ -19,6 +21,7 @@ const MOCK_POSTS = [
 ];
 
 const News = () => {
+    const { t } = useTranslation();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -32,11 +35,11 @@ const News = () => {
 
     return (
         <div style={{ maxWidth: 800, margin: '0 auto', padding: 24 }}>
-            <h1>Latest News</h1>
+            <h1>{t('news.title', 'Latest News')}</h1>
             {loading ? (
-                <p>Loading news...</p>
+                <p>{t('news.loading', 'Loading news...')}</p>
             ) : posts.length === 0 ? (
-                <p>No news available.</p>
+                <p>{t('news.noNews', 'No news available.')}</p>
             ) : (
                 posts.map((post) => (
                     <div
@@ -52,12 +55,12 @@ const News = () => {
                         {post.full_picture && (
                             <img
                                 src={post.full_picture}
-                                alt="Post visual"
+                                alt={t('news.postVisual', 'Post visual')}
                                 style={{ width: '100%', borderRadius: 8, marginBottom: 12 }}
                             />
                         )}
                         <p style={{ fontSize: 18, marginBottom: 8 }}>
-                            {post.message || 'No content'}
+                            {post.message || t('news.noContent', 'No content')}
                         </p>
                         <small style={{ color: '#888' }}>
                             {new Date(post.created_time).toLocaleString()}

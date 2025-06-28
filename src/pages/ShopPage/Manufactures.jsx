@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import BrandCard from '../../components/BrandCard';
+import '../../i18n';
 
 const ManufacturersPage = ({ manufacturers = [], onBrandClick, headerRed = "#c00" }) => {
+  const { t } = useTranslation();
   const [selectedBrand, setSelectedBrand] = useState(null);
 
   // Sort manufacturers alphabetically
@@ -36,7 +39,7 @@ const ManufacturersPage = ({ manufacturers = [], onBrandClick, headerRed = "#c00
           letterSpacing: 1
         }}
       >
-        Manufacturers
+        {t('manufacturers.title', 'Manufacturers')}
       </h3>
       <div
         className="brand-grids"

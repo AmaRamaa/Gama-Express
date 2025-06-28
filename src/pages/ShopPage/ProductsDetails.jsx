@@ -8,6 +8,8 @@ import ProductCard from '../../components/ProductCard';
 import ViberLogo from '../../assets/ViberLogo.png';
 import WhatsAppLogo from '../../assets/WhatsAppLogo.png';
 import Pagination from "react-js-pagination";
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 const FIELD_LABELS = {
     OEM: 'OEM',
@@ -45,6 +47,7 @@ const WHATSAPP_NUMBER = '+38344100531'; // Replace with your WhatsApp number
 const VIBER_NUMBER = '+38344100531';    // Replace with your Viber number
 
 const ProductDetails = () => {
+    const { t } = useTranslation();
     const { product } = useParams();
     const [part, setPart] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
@@ -160,7 +163,7 @@ const ProductDetails = () => {
     }, [part, setRelatedData]);
 
     if (loading) return <Loader />;
-    if (!part) return <div className="alert alert-danger my-5 text-center">Part not found.</div>;
+    if (!part) return <div className="alert alert-danger my-5 text-center">{t('productDetails.notFound', 'Part not found.')}</div>;
 
     return (
         <div className="container my-5">
@@ -197,7 +200,7 @@ const ProductDetails = () => {
                         <li className="list-group-item"><strong>Created At:</strong> {new Date(part.created_at).toLocaleString()}</li>
                     </ul>
                     <button className="btn btn-danger px-4 mb-3" onClick={() => setShowModal(true)}>
-                        Contact Sales
+                        {t('productDetails.contactSales', 'Contact Sales')}
                     </button>
                     {/* Call Sales */}
                     <div className="mb-3">
@@ -206,7 +209,7 @@ const ProductDetails = () => {
                             className="btn btn-outline-primary"
                             style={{ minWidth: 180 }}
                         >
-                            Call Sales: +383 44 100 531
+                            {t('productDetails.callSales', 'Call Sales')}: +383 44 100 531
                         </a>
                     </div>
                     {/* Modal Overlay */}
@@ -215,11 +218,11 @@ const ProductDetails = () => {
                             <div className="modal-dialog modal-dialog-centered">
                                 <div className="modal-content">
                                     <div className="modal-header">
-                                        <h5 className="modal-title">Contact Sales</h5>
+                                        <h5 className="modal-title">{t('productDetails.contactSales', 'Contact Sales')}</h5>
                                         <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
                                     </div>
                                     <div className="modal-body text-center">
-                                        <p>Choose your preferred app to contact us:</p>
+                                        <p>{t('productDetails.chooseApp', 'Choose your preferred app to contact us:')}</p>
                                         <a
                                             href={`https://wa.me/${WHATSAPP_NUMBER}`}
                                             target="_blank"
@@ -258,7 +261,7 @@ const ProductDetails = () => {
                                     aria-expanded={showAll}
                                     aria-controls="collapseAll"
                                 >
-                                    {showAll ? 'Hide Details' : 'View All Details'}
+                                    {showAll ? t('productDetails.hideDetails', 'Hide Details') : t('productDetails.viewAllDetails', 'View All Details')}
                                 </button>
                             </h2>
                             <div
@@ -290,11 +293,11 @@ const ProductDetails = () => {
                     </div>
                     {/* --- Related Products Section with Pagination --- */}
                     <div className="mt-5">
-                        <h4 className="mb-3">Related Products</h4>
+                        <h4 className="mb-3">{t('productDetails.relatedProducts', 'Related Products')}</h4>
                         <input
                             type="text"
                             className="form-control mb-3"
-                            placeholder="Filter related products..."
+                            placeholder={t('productDetails.filterRelated', 'Filter related products...')}
                             value={relatedFilter}
                             onChange={e => setRelatedFilter(e.target.value)}
                             style={{ maxWidth: 300 }}
@@ -302,7 +305,7 @@ const ProductDetails = () => {
                         {relatedLoading ? (
                             <Loader />
                         ) : paginatedRelatedProducts.length === 0 ? (
-                            <div className="alert alert-warning">No related products found.</div>
+                            <div className="alert alert-warning">{t('productDetails.noRelated', 'No related products found.')}</div>
                         ) : (
                             <>
                                 <div className="row g-4" style={{gap: '15px'}}> 

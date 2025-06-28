@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Use the public URL for the logo image
@@ -50,17 +52,20 @@ const brandsData = [
 
 
 const BrandCard = ({ brand }) => {
+    const { t } = useTranslation();
     const [hovered, setHovered] = useState(false);
 
     const getDescriptionWithBoldName = () => {
-        const { name, description } = brand;
-        const index = description.indexOf(name);
-        if (index === -1) return description;
+        const { name } = brand;
+        // Use translation if available, fallback to brand.description
+        const desc = t(`brands.${name}.description`, brand.description);
+        const index = desc.indexOf(name);
+        if (index === -1) return desc;
         return (
             <>
-                {description.substring(0, index)}
+                {desc.substring(0, index)}
                 <strong>{name}</strong>
-                {description.substring(index + name.length)}
+                {desc.substring(index + name.length)}
             </>
         );
     };
@@ -126,18 +131,19 @@ const BrandsList = () => (
     </div>
 );
 
-const Company = () => (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '2rem 1rem', textAlign: 'center', borderRadius: '8px', boxShadow: '0 2px 12px rgba(0,0,0,0.1)'}}>
-        <img src={GamaExpressLogo} alt="Gama Express Logo" />
-        <h1 style={{ fontSize: '2.2rem', fontWeight: 700, marginBottom: '1rem' }}>About Our Company</h1>
-        <p style={{ fontSize: '1.1rem', color: '#444', marginBottom: '2rem', lineHeight: 1.7 }}>
-            Gama Express is a leading supplier of high-quality automotive parts and accessories, partnering with top global brands to deliver reliable solutions for every vehicle. 
-            Our commitment to excellence, innovation, and customer satisfaction drives us to provide products that meet the highest industry standards. 
-            Whether you are a professional mechanic or a car enthusiast, we offer a comprehensive range of parts to keep your vehicle running at its best.
-        </p>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem' }}>Our Brands</h2>
-        <BrandsList />
-    </div>
-);
+const Company = () => {
+    const { t } = useTranslation();
+    return (
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '2rem 1rem', textAlign: 'center', borderRadius: '8px', boxShadow: '0 2px 12px rgba(0,0,0,0.1)'}}>
+            <img src={GamaExpressLogo} alt="Gama Express Logo" />
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 700, marginBottom: '1rem' }}>{t('company.about')}</h1>
+            <p style={{ fontSize: '1.1rem', color: '#444', marginBottom: '2rem', lineHeight: 1.7 }}>
+                {t('company.description')}
+            </p>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem' }}>{t('company.brands')}</h2>
+            <BrandsList />
+        </div>
+    );
+};
 
 export default Company;

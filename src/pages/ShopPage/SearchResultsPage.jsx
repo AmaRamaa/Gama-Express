@@ -1,21 +1,24 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import Loader from '../../components/Loader';
+import '../../i18n';
 
 const SearchResultsPage = ({ loading, filteredProducts, headerRed, manufacturer, selectedModel }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     return (
         <div className="container-fluid mt-5" style={{ maxWidth: '100vw', padding: 0, background: '#fff', borderRadius: '0 0 8px 8px' }}>
             <div style={{ minHeight: '80vh' }}>
                 <h3 style={{ color: headerRed, margin: '24px 0 16px 0', textAlign: 'center' }}>
-                    Search Results
+                    {t('searchResults.title', 'Search Results')}
                 </h3>
                 {loading && <Loader />}
                 {!loading && (
                     filteredProducts.length === 0 ? (
                         <div style={{ textAlign: 'center', color: '#888', marginTop: '40px', fontSize: '18px' }}>
-                            No parts found for this search.
+                            {t('searchResults.noParts', 'No parts found for this search.')}
                         </div>
                     ) : (
                         <div

@@ -5,6 +5,8 @@ import ProductCard from "../../components/ProductCard";
 import BrandGrid from "../../components/BrandGrid";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Pagination from "react-js-pagination";
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 // Styles
 const styles = {
@@ -75,6 +77,7 @@ const styles = {
 
 // Home Page Component
 export default function Home() {
+  const { t } = useTranslation();
   const [brands, setBrands] = useState([]);
   const [products, setProducts] = useState([]);
 
@@ -151,14 +154,14 @@ return (
             >
                 <img src={GamaLogo} alt="Gama Express Logo" style={styles.logo} />
                 <p style={styles.heroText}>
-                    Welcome to Gama Express – your one-stop destination for premium auto parts!
+                    {t('home.heroText', 'Welcome to Gama Express – your one-stop destination for premium auto parts!')}
                 </p>
                 <p style={styles.heroSubText}>
-                    Browse through our vast inventory, discover unbeatable deals, and enjoy fast service backed by a passionate team ready to help you.
+                    {t('home.heroSubText', 'Browse through our vast inventory, discover unbeatable deals, and enjoy fast service backed by a passionate team ready to help you.')}
                 </p>
             </div>
         </section>
-        <h2 style={styles.sectionTitle}>Popular Brands</h2>
+        <h2 style={styles.sectionTitle}>{t('home.popularBrands', 'Popular Brands')}</h2>
         <section style={styles.gridSection}>
             <BrandGrid
                 brands={[...brands].slice(0, 10)}
@@ -180,7 +183,7 @@ return (
                 }}
             />
         </section>
-        <h2 style={styles.sectionTitle}>Latest Products</h2>
+        <h2 style={styles.sectionTitle}>{t('home.latestProducts', 'Latest Products')}</h2>
         <section style={styles.gridSection}>
             <div style={styles.productsGrid}>
                 {paginatedProducts.map((product, idx) => (

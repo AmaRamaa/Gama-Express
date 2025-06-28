@@ -1,10 +1,13 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 const whatsappNumber = "+38344100531";
 const viberNumber = "+38344100531";
 const emailAddress = "gamaexpress18@gmail.com";
 
 export default function Contacts() {
+    const { t } = useTranslation();
     return (
         <div style={{
             maxWidth: 480,
@@ -22,7 +25,7 @@ export default function Contacts() {
                 fontSize: 32,
                 letterSpacing: 1
             }}>
-                Contact Us
+                {t('contacts.title', 'Contact Us')}
             </h1>
             <div style={{display: "flex", flexDirection: "column", gap: 24}}>
                 <a
@@ -48,7 +51,7 @@ export default function Contacts() {
                         alt="WhatsApp"
                         style={{width: 28, height: 28, marginRight: 14, background: "#fff", borderRadius: "50%", padding: 4}}
                     />
-                    WhatsApp
+                    {t('contacts.whatsapp', 'WhatsApp')}
                 </a>
                 <a
                     href={`viber://chat?number=%2B${viberNumber}`}
@@ -69,90 +72,29 @@ export default function Contacts() {
                     <img
                         src="/ViberLogo.png"
                         alt="Viber"
-                        style={{width: 28, height: 28, marginRight: 14, background: "#fff", borderRadius: "50%"}}
+                        style={{width: 28, height: 28, marginRight: 14, background: "#fff", borderRadius: "50%", padding: 4}}
                     />
-                    Viber
+                    {t('contacts.viber', 'Viber')}
                 </a>
-                <form
-                    action={`mailto:${emailAddress}`}
-                    method="POST"
-                    encType="text/plain"
+                <a
+                    href={`mailto:${emailAddress}`}
                     style={{
-                        background: "#f9fafb",
-                        padding: 24,
-                        borderRadius: 8,
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
                         display: "flex",
-                        flexDirection: "column",
-                        gap: 14
+                        alignItems: "center",
+                        background: "#e11d48",
+                        color: "#fff",
+                        padding: "14px 24px",
+                        borderRadius: 6,
+                        textDecoration: "none",
+                        fontWeight: 500,
+                        fontSize: 18,
+                        transition: "background 0.2s",
+                        boxShadow: "0 1px 4px rgba(225,29,72,0.10)"
                     }}
                 >
-                    <h2 style={{
-                        margin: 0,
-                        fontSize: 20,
-                        color: "#991b1b",
-                        fontWeight: 600,
-                        letterSpacing: 0.5
-                    }}>
-                        Customer Complaints
-                    </h2>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        required
-                        style={{
-                            padding: 10,
-                            borderRadius: 5,
-                            border: "1px solid #e5e7eb",
-                            fontSize: 16,
-                            background: "#fff"
-                        }}
-                    />
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        required
-                        style={{
-                            padding: 10,
-                            borderRadius: 5,
-                            border: "1px solid #e5e7eb",
-                            fontSize: 16,
-                            background: "#fff"
-                        }}
-                    />
-                    <textarea
-                        name="message"
-                        placeholder="Describe your complaint..."
-                        rows={4}
-                        required
-                        style={{
-                            padding: 10,
-                            borderRadius: 5,
-                            border: "1px solid #e5e7eb",
-                            fontSize: 16,
-                            background: "#fff",
-                            resize: "vertical"
-                        }}
-                    />
-                    <button
-                        type="submit"
-                        style={{
-                            background: "#991b1b",
-                            color: "#fff",
-                            padding: "12px 0",
-                            border: "none",
-                            borderRadius: 5,
-                            fontWeight: 600,
-                            fontSize: 16,
-                            cursor: "pointer",
-                            marginTop: 6
-                        }}
-                    >
-                        Send Email
-                    </button>
-                </form>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{marginRight: 14, background: "#fff", borderRadius: "50%", padding: 4}}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.5 3.75h-9A2.25 2.25 0 0 0 5.25 6v12A2.25 2.25 0 0 0 7.5 20.25h9a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 16.5 3.75z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m7.5 6 4.5 4.5L16.5 6" /></svg>
+                    {t('contacts.email', 'Email')}
+                </a>
             </div>
         </div>
     );

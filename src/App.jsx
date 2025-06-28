@@ -17,6 +17,7 @@ import Company from "./pages/Company/Company"
 import Contact from "./pages/Contacts/Contacts"
 import News from "./pages/News/News"
 import Legal from "./pages/Legal/Legal"
+import './i18n';
 
 function CatalogManufacturersWrapper() {
   const [manufacturers, setManufacturers] = useState([])

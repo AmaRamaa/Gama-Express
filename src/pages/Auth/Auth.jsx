@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { supabase } from "../../supaBase/supaBase";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 const Auth = () => {
+    const { t } = useTranslation();
     const [form, setForm] = useState({ username: "", password: "" });
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -28,13 +31,13 @@ const Auth = () => {
         <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
             <div className="card shadow" style={{ maxWidth: 400, width: "100%" }}>
                 <div className="card-header bg-danger text-white text-center">
-                    <h2 className="mb-0">Login</h2>
+                    <h2 className="mb-0">{t('auth.login', 'Login')}</h2>
                 </div>
                 <div className="card-body">
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="username" className="form-label">
-                                Username:
+                                {t('auth.username', 'Username:')}
                             </label>
                             <input
                                 type="text"
@@ -48,7 +51,7 @@ const Auth = () => {
                         </div>
                         <div className="mb-3">
                             <label htmlFor="password" className="form-label">
-                                Password:
+                                {t('auth.password', 'Password:')}
                             </label>
                             <input
                                 type="password"
@@ -62,11 +65,11 @@ const Auth = () => {
                         </div>
                         {error && (
                             <div className="alert alert-danger py-2 mb-3" role="alert">
-                                {error}
+                                {t('auth.invalid', error)}
                             </div>
                         )}
                         <button type="submit" className="btn btn-danger w-100">
-                            Login
+                            {t('auth.login', 'Login')}
                         </button>
                     </form>
                 </div>
