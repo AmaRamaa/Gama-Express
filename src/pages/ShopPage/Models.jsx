@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supaBase/supaBase';
 import './index.css'
-import ReactImageMagnify from 'react-image-magnify';
 import GamaLogo from '/assets/GamaExpressSmallLogo.png'; // Adjust path if needed
 import Loader from '../../components/Loader';
 import ModelInfoCard from '../../components/ModelInfoCard';
