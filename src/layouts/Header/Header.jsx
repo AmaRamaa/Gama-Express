@@ -61,37 +61,60 @@ const Header = () => {
 
     const { t } = useTranslation();
 
+    // Show header if mouse moves to top of screen (when hidden)
+    useEffect(() => {
+        if (!showHeader) {
+            const handleMouseMove = (e) => {
+                if (e.clientY <= 8) {
+                    setShowHeader(true);
+                }
+            };
+            window.addEventListener("mousemove", handleMouseMove);
+            return () => window.removeEventListener("mousemove", handleMouseMove);
+        }
+    }, [showHeader]);
+
+    // Fullscreen glassmorphic dropdown menu
     return (
-        <div
-            className={`header-container${showHeader ? " header-visible" : " header-hidden"}`}
-            style={{
-                zIndex: 1500000,
-                position: "sticky",
-                top: 0,
-                width: "100%",
-                backgroundColor: "#fff",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.5)"
-            }}
-        >
-            <header className="bg-white shadow-sm" style={{ height: "100px", display: "flex", alignItems: "center" }}>
-                <nav className="navbar navbar-expand-lg w-100">
-                    <div className="container-fluid" style={{ maxWidth: 1400 }}>
-                        <Link className="navbar-brand" to="/">
-                            <img
-                                src={GamaLogo}
-                                alt="Logo"
-                                style={{ height: 48, marginLeft: 12 }}
-                            />
-                        </Link>
-                        <button
-                            className="navbar-toggler"
-                            type="button"
-                            aria-label="Toggle navigation"
-                            onClick={() => setMenuOpen(!menuOpen)}
-                        >
-                            <span className="navbar-toggler-icon"></span>
-                        </button>
-                        <div className={`collapse navbar-collapse${menuOpen ? " show" : ""}`}>
+        <>
+            <div
+                className={`header-container${showHeader ? " header-visible" : " header-hidden"}`}
+                style={{
+                    zIndex: 1500000,
+                    position: "sticky",
+                    top: 0,
+                    width: "100%",
+                    background: "rgba(255,255,255,0.85)",
+                    backdropFilter: "blur(8px) saturate(160%)",
+                    WebkitBackdropFilter: "blur(8px) saturate(160%)",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.10)"
+                }}
+            >
+                <header className="bg-white shadow-sm" style={{ height: "100px", display: "flex", alignItems: "center", background: "transparent" }}>
+                    <nav className="navbar navbar-expand-lg w-100">
+                        <div className="container-fluid" style={{ maxWidth: 1400 }}>
+                            <Link className="navbar-brand" to="/">
+                                <img
+                                    src={GamaLogo}
+                                    alt="Logo"
+                                    style={{ height: 48, marginLeft: 12, filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.10))" }}
+                                />
+                            </Link>
+                            <button
+                                className="navbar-toggler"
+                                type="button"
+                                aria-label="Toggle navigation"
+                                onClick={() => setMenuOpen(!menuOpen)}
+                                style={{
+                                    background: "rgba(255,255,255,0.7)",
+                                    border: "none",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                                    borderRadius: 12
+                                }}
+                            >
+                                <span className="navbar-toggler-icon"></span>
+                            </button>
+                            <div className="d-none d-lg-flex flex-grow-1 align-items-center"></div>
                             <ul className="navbar-nav me-auto mb-2 mb-lg-0 align-items-center" style={{ gap: 24 }}>
                                 {navLinks.map(link => (
                                     <li className="nav-item position-relative" key={link.label}>
@@ -108,8 +131,10 @@ const Header = () => {
                                                 paddingBottom: isActive ? 6 : undefined,
                                                 position: "relative",
                                                 color: isActive ? "#e53935" : "#333",
-                                                background: isActive ? "rgba(229,57,53,0.08)" : "transparent",
-                                                transition: "background 0.2s, color 0.2s"
+                                                background: isActive ? "rgba(229,57,53,0.10)" : "rgba(255,255,255,0.30)",
+                                                transition: "background 0.2s, color 0.2s",
+                                                backdropFilter: isActive ? "blur(4px)" : undefined,
+                                                WebkitBackdropFilter: isActive ? "blur(4px)" : undefined
                                             })}
                                         >
                                             {t(link.label)}
@@ -136,17 +161,24 @@ const Header = () => {
                                     className="form-control rounded-start-pill border-danger"
                                     type="text"
                                     placeholder={t('header.searchPlaceholder', 'Product name or item number...')}
-                                    style={{ width: 220, fontSize: 14 }}
+                                    style={{
+                                        width: 220,
+                                        fontSize: 14,
+                                        background: "rgba(255,255,255,0.7)",
+                                        border: "1px solid rgba(229,57,53,0.18)",
+                                        boxShadow: "0 2px 8px rgba(229,57,53,0.08)",
+                                        color: "#222"
+                                    }}
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                 />
-                                <button className="btn btn-danger rounded-end-pill ms-n2" type="submit" style={{ width: 44, height: 44 }}>
+                                <button className="btn btn-danger rounded-end-pill ms-n2" type="submit" style={{ width: 44, height: 44, boxShadow: "0 2px 8px rgba(229,57,53,0.18)" }}>
                                     <i className="bi bi-search" style={{ fontSize: 20, color: "#fff" }}></i>
                                 </button>
                             </form>
                             <div className="d-flex align-items-center header-customer-profile" style={{ gap: 8 }}>
                                 <span className="fs-6 text-dark">{t('header.customerService', 'Customer service')}</span>
-                                <span className="fs-4 text-dark ms-2" style={{ cursor: "pointer" }} onClick={handleProfileClick}>
+                                <span className="fs-4 text-dark ms-2" style={{ cursor: "pointer", filter: "drop-shadow(0 2px 8px rgba(229,57,53,0.10))" }} onClick={handleProfileClick}>
                                     <i className="bi bi-person-circle"></i>
                                 </span>
                             </div>
@@ -161,6 +193,7 @@ const Header = () => {
                                             borderWidth: i18n.language === lang ? 2 : 1,
                                             borderColor: i18n.language === lang ? "#e53935" : undefined,
                                             boxShadow: i18n.language === lang ? "0 2px 8px rgba(229,57,53,0.12)" : undefined,
+                                            background: i18n.language === lang ? "rgba(229,57,53,0.18)" : "rgba(255,255,255,0.30)",
                                             transition: "all 0.2s"
                                         }}
                                         onClick={() => i18n.changeLanguage(lang)}
@@ -170,111 +203,169 @@ const Header = () => {
                                 ))}
                             </div>
                         </div>
+                    </nav>
+                </header>
+            </div>
+            {/* Glassmorphic fullscreen dropdown menu for mobile */}
+            {menuOpen && (
+                <div className="glass-dropdown-menu" onClick={() => setMenuOpen(false)}>
+                    <div className="glass-dropdown-content" onClick={e => e.stopPropagation()}>
+                        <button
+                            className="btn btn-close btn-lg position-absolute"
+                            style={{ top: 24, right: 32, zIndex: 2, background: "rgba(255,255,255,0.7)", borderRadius: 16, boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
+                            aria-label="Close"
+                            onClick={() => setMenuOpen(false)}
+                        />
+                        <ul className="list-unstyled text-center" style={{ marginTop: 80 }}>
+                            {navLinks.map(link => (
+                                <li key={link.label} style={{ margin: "32px 0" }}>
+                                    <NavLink
+                                        to={link.to}
+                                        className={({ isActive }) =>
+                                            "glass-nav-link" + (isActive ? " glass-nav-link-active" : "")
+                                        }
+                                        style={{
+                                            fontSize: 28,
+                                            fontWeight: 600,
+                                            color: "#fff",
+                                            letterSpacing: 1,
+                                            textShadow: "0 2px 12px rgba(0,0,0,0.22)",
+                                            padding: "16px 40px",
+                                            borderRadius: 20,
+                                            background: "rgba(255,255,255,0.10)",
+                                            boxShadow: "0 4px 24px 0 rgba(31, 38, 135, 0.18)",
+                                            backdropFilter: "blur(8px) saturate(180%)",
+                                            WebkitBackdropFilter: "blur(8px) saturate(180%)",
+                                            border: isActive ? "2px solid #e53935" : "2px solid rgba(255,255,255,0.18)",
+                                            transition: "background 0.2s, color 0.2s, border 0.2s"
+                                        }}
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        {t(link.label)}
+                                    </NavLink>
+                                </li>
+                            ))}
+                        </ul>
+                        <form className="d-flex justify-content-center mb-4" role="search" onSubmit={e => { handleSearch(e); setMenuOpen(false); }}>
+                            <input
+                                className="form-control rounded-pill border-0"
+                                type="text"
+                                placeholder={t('header.searchPlaceholder', 'Product name or item number...')}
+                                style={{
+                                    width: 260,
+                                    fontSize: 16,
+                                    background: "rgba(255,255,255,0.30)",
+                                    color: "#fff",
+                                    boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                                    border: "1px solid rgba(255,255,255,0.25)",
+                                    marginRight: 8,
+                                    backdropFilter: "blur(4px)",
+                                    WebkitBackdropFilter: "blur(4px)",
+                                    outline: "none"
+                                }}
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                            <button className="btn btn-danger rounded-pill" type="submit" style={{ width: 48, height: 48, boxShadow: "0 2px 8px rgba(229,57,53,0.18)" }}>
+                                <i className="bi bi-search" style={{ fontSize: 22, color: "#fff" }}></i>
+                            </button>
+                        </form>
+                        <div className="d-flex justify-content-center align-items-center mb-4" style={{ gap: 16 }}>
+                            <span className="fs-5 text-white" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.18)" }}>{t('header.customerService', 'Customer service')}</span>
+                            <span className="fs-2 text-white" style={{ cursor: "pointer", filter: "drop-shadow(0 2px 8px rgba(229,57,53,0.18))" }} onClick={() => { handleProfileClick(); setMenuOpen(false); }}>
+                                <i className="bi bi-person-circle"></i>
+                            </span>
+                        </div>
+                        <div className="d-flex justify-content-center align-items-center" style={{ gap: 16 }}>
+                            {['en', 'sq'].map(lang => (
+                                <button
+                                    key={lang}
+                                    className={`btn btn-sm px-4 ${i18n.language === lang ? "btn-danger text-white fw-bold" : "btn-outline-light text-white"}`}
+                                    style={{
+                                        borderRadius: 20,
+                                        borderWidth: i18n.language === lang ? 2 : 1,
+                                        borderColor: i18n.language === lang ? "#e53935" : "rgba(255,255,255,0.5)",
+                                        boxShadow: i18n.language === lang ? "0 2px 8px rgba(229,57,53,0.12)" : undefined,
+                                        background: i18n.language === lang ? "rgba(229,57,53,0.18)" : "rgba(255,255,255,0.10)",
+                                        transition: "all 0.2s"
+                                    }}
+                                    onClick={() => { i18n.changeLanguage(lang); setMenuOpen(false); }}
+                                >
+                                    {lang.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </nav>
-            </header>
+                </div>
+            )}
             <style>
                 {`
                 .active-nav {
                     color: #e53935 !important;
-                    background: rgba(229,57,53,0.08) !important;
+                    background: rgba(229,57,53,0.10) !important;
                     box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+                    backdrop-filter: blur(4px);
+                    -webkit-backdrop-filter: blur(4px);
                 }
                 .nav-hover:hover {
-                    background: #f8f9fa;
+                    background: rgba(255,255,255,0.40);
                     color: #e53935 !important;
+                    backdrop-filter: blur(4px);
+                    -webkit-backdrop-filter: blur(4px);
                 }
-                /* --- MOBILE RESPONSIVE HEADER --- */
-                @media (max-width: 991.98px) {
-                    .header-container header {
-                        height: 70px !important;
-                        min-height: 56px;
-                        padding: 0 8px;
-                    }
-                    .navbar-brand img {
-                        height: 36px !important;
-                        margin-left: 0 !important;
-                    }
-                    .navbar-toggler {
-                        margin-right: 8px;
-                        font-size: 1.5rem;
-                    }
-                    .navbar-collapse {
-                        background: #fff;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                        border-radius: 12px;
-                        margin-top: 8px;
-                        padding: 12px 8px 8px 8px;
-                    }
-                    .navbar-nav {
-                        flex-direction: column !important;
-                        align-items: flex-start !important;
-                        gap: 8px !important;
-                    }
-                    .nav-link {
-                        font-size: 16px !important;
-                        width: 100%;
-                        text-align: left;
-                        padding: 8px 0 !important;
-                    }
-                    .header-search-form {
-                        width: 100%;
-                        margin: 8px 0 0 0 !important;
-                        flex-direction: row !important;
-                        justify-content: flex-start;
-                    }
-                    .header-search-form input {
-                        width: 100% !important;
-                        min-width: 0 !important;
-                        font-size: 14px !important;
-                    }
-                    .header-search-form button {
-                        width: 40px !important;
-                        height: 40px !important;
-                        margin-left: -8px !important;
-                    }
-                    .header-customer-profile {
-                        margin: 8px 0 0 0 !important;
-                        gap: 6px !important;
-                        font-size: 15px !important;
-                    }
-                    .header-lang-switcher {
-                        margin: 8px 0 0 0 !important;
-                        gap: 6px !important;
-                        padding-left: 0 !important;
+                .glass-dropdown-menu {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 2000000;
+                    background: linear-gradient(120deg, rgba(30, 30, 40, 0.30) 0%, rgba(229,57,53,0.10) 100%);
+                    backdrop-filter: blur(24px) saturate(180%);
+                    -webkit-backdrop-filter: blur(24px) saturate(180%);
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: center;
+                    animation: glassFadeIn 0.25s;
+                }
+                .glass-dropdown-content {
+                    margin-top: 40px;
+                    background: rgba(255,255,255,0.18);
+                    border-radius: 36px;
+                    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18), 0 1.5px 0.5px 0 rgba(229,57,53,0.08);
+                    border: 1.5px solid rgba(255,255,255,0.28);
+                    padding: 56px 32px 36px 32px;
+                    min-width: 340px;
+                    max-width: 95vw;
+                    width: 420px;
+                    position: relative;
+                    backdrop-filter: blur(24px) saturate(180%);
+                    -webkit-backdrop-filter: blur(24px) saturate(180%);
+                }
+                .glass-nav-link {
+                    color: #fff;
+                    background: transparent;
+                    text-decoration: none;
+                    display: inline-block;
+                    box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+                }
+                .glass-nav-link-active,
+                .glass-nav-link:hover {
+                    background: rgba(229,57,53,0.22);
+                    color: #fff !important;
+                    text-shadow: 0 2px 12px rgba(229,57,53,0.18);
+                    border: 2px solid #e53935 !important;
+                    box-shadow: 0 4px 24px 0 rgba(229,57,53,0.10);
+                }
+                @media (min-width: 992px) {
+                    .glass-dropdown-menu {
+                        display: none !important;
                     }
                 }
-                @media (max-width: 575.98px) {
-                    .header-container header {
-                        height: 56px !important;
-                        min-height: 48px;
-                        padding: 0 2px;
-                    }
-                    .navbar-brand img {
-                        height: 28px !important;
-                    }
-                    .navbar-toggler {
-                        font-size: 1.2rem;
-                    }
-                    .navbar-collapse {
-                        border-radius: 8px;
-                        padding: 8px 2px 4px 2px;
-                    }
-                    .nav-link {
-                        font-size: 15px !important;
-                        padding: 6px 0 !important;
-                    }
-                    .header-search-form input {
-                        font-size: 13px !important;
-                    }
-                    .header-customer-profile, .header-lang-switcher {
-                        font-size: 13px !important;
-                        gap: 4px !important;
-                    }
+                @keyframes glassFadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
                 }
                 `}
             </style>
-        </div>
+        </>
     );
 };
 

@@ -111,12 +111,14 @@ return (
             style={{
                 ...styles.heroSection,
                 position: "relative",
-                minHeight: "80vh",
+                minHeight: "100vh",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
                 overflow: "hidden",
                 padding: 0,
+                alignContent: "center",
+                alignItems: "center",
             }}
         >
             {/* Background Video */}
@@ -141,7 +143,7 @@ return (
                 style={{
                     position: "relative",
                     zIndex: 1,
-                    width: "100%",
+                    width: "50%",
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
