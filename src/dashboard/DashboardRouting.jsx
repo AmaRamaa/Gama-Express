@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Sidebar from './components/SideBar/Sidebar.jsx';
 import Header from './components/Header/Header';
-import './styles.css';
+import './style.css';
 import { FaHome, FaCog, FaUser, FaSignOutAlt } from 'react-icons/fa';
 
 import ManufacturesList from './pages/Manufacture/ManufactureList';
