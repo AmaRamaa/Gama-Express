@@ -14,12 +14,16 @@
     "backend": "node server.js",
     "backend:dev": "node --watch server.js",
     "backend:start": "node server.js",
+    "backend:prod": "NODE_ENV=production node server.js",
     "db:check": "node db-setup.js check",
     "db:create-table": "node db-setup.js create-table",
     "db:list-csv": "node db-setup.js list-csv",
     "start:all": "concurrently \"npm run dev\" \"npm run backend:dev\"",
     "clean": "rm -rf node_modules package-lock.json && npm install",
-    "fix": "npm install && npm run dev"
+    "fix": "npm install && npm run dev",
+    "test:connection": "node -e \"import('./src/services/apiService.js').then(m => m.apiService.checkConnection().then(ok => console.log('Connection:', ok ? '✅ OK' : '❌ Failed')))\"",
+    "check:deployment": "node check-deployment.js",
+    "test:vercel": "node test-vercel-deployment.js"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
