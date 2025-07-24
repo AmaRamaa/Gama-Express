@@ -1,0 +1,9 @@
+manufacturer,model,search_code,start_year,end_year,variant,code,image_path
+ROVER,200,200,1996,1999,,, 
+ROVER,214/414,214414,1990,1993,,, 
+ROVER,214/414,214414,1993,1995,,, 
+ROVER,25,25,2000,2005,,, 
+ROVER,400,400,1996,1999,,, 
+ROVER,45,45,2000,2005,,, 
+ROVER,600,600,1994,1998,,, 
+ROVER,75,75,1999,2005,,, 
