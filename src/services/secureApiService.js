@@ -6,7 +6,7 @@
 class SecureApiService {
   constructor() {
     this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
-    this.apiKey = import.meta.env.VITE_API_KEY || 'gama-frontend-secure-api-key-2024';
+    this.apiKey = import.meta.env.VITE_API_KEY || 'gama-frontend-key-2024';
     this.timeout = 10000; // 10 seconds
   }
 
