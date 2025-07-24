@@ -36,3 +36,4 @@ dist-ssr
 # Build output
 .csv
 csv-uploader.js
+.vercel

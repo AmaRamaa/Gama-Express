@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: gama-express-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run backend:start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: https://gama-express-347z.vercel.app
+      - key: FRONTEND_API_KEY
+        value: gama-frontend-api-key-production-2024
+      - key: ADMIN_API_KEY
+        value: gama-admin-api-key-production-2024
+      - key: MOBILE_API_KEY
+        value: gama-mobile-api-key-production-2024
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 50
+      - key: VITE_SUPABASE_URL
+        value: https://xnsetzrgwdeufezcugjn.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhuc2V0enJnd2RldWZlemN1Z2puIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzNDA3NzEsImV4cCI6MjA2MzkxNjc3MX0.S51kUa0dFbUpbMI_QeSWuxXef-qp6uMVtHr44OYQ-tU
