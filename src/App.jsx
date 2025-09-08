@@ -19,6 +19,8 @@ import News from "./pages/News/News"
 import Legal from "./pages/Legal/Legal"
 import './i18n';
 
+// korabi commit
+
 function CatalogManufacturersWrapper() {
   const [manufacturers, setManufacturers] = useState([])
   const [products, setProducts] = useState([])
